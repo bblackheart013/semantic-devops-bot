@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Built with](https://img.shields.io/badge/Built%20With-Semantic%20Kernel%20%26%20OpenAI-blueviolet)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+
 # Semantic DevOps Bot 🚀
 
 An intelligent AI-powered DevOps assistant that automatically **analyzes error logs**, **suggests real-time fixes**, and **creates GitHub issues** —  
