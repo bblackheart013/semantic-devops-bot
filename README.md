@@ -99,11 +99,15 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgements
 
-- Microsoft Semantic Kernel
-- OpenAI API
-- GitHub API
+- [Microsoft Semantic Kernel](https://github.com/microsoft/semantic-kernel)
+- [OpenAI API](https://platform.openai.com/docs/api-reference)
+- [GitHub API](https://docs.github.com/en/rest)
 
 ## 📣 Connect with me!
+
+- [GitHub](https://github.com/bblackheart013)
+- [Google Scholar](https://scholar.google.com/citations?user=o1hrV0kAAAAJ&hl=en)
+- [LinkedIn](https://www.linkedin.com/in/mohd-sarfaraz-f-8bb52922a) <!-- Replace with your actual LinkedIn URL -->
 
 If you find this project interesting or valuable, feel free to connect or collaborate.
 
