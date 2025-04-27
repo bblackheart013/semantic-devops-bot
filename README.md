@@ -117,8 +117,14 @@ This project is licensed under the MIT License.
 
 - [GitHub](https://github.com/bblackheart013)
 - [Google Scholar](https://scholar.google.com/citations?user=o1hrV0kAAAAJ&hl=en)
-- [LinkedIn](https://www.linkedin.com/in/mohd-sarfaraz-f-8bb52922a) <!-- Replace with your actual LinkedIn URL -->
+- [LinkedIn](https://www.linkedin.com/in/mohd-sarfaraz-f-8bb52922a) 
 
 If you find this project interesting or valuable, feel free to connect or collaborate.
 
 Built with 💻 and ❤️ for making DevOps smarter.
+
+---
+
+## 🔎 Keywords (for SEO)
+
+semantic kernel, microsoft semantic kernel, openai api, devops automation, github issue bot, AI error analysis, error log analyzer, multi-agent systems, AI DevOps tools, python semantic kernel, devops bot, github automation, azure optimization, ci/cd failure diagnosis
