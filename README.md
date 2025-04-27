@@ -33,13 +33,11 @@ Built using **Microsoft Semantic Kernel** and **OpenAI GPT models**.
 - OpenAI API key (with sufficient quota)
 - GitHub Personal Access Token (with `repo` scope)
 
----
-
 ### 2. Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/semantic-devops-bot.git
+git clone https://github.com/bblackheart013/semantic-devops-bot.git
 cd semantic-devops-bot
 
 # Create and activate a virtual environment
@@ -48,33 +46,34 @@ source venv/bin/activate  # (Windows: venv\Scripts\activate)
 
 # Install dependencies
 pip install -r requirements.txt
-
----
+```
 
 ### 3. Environment Setup
 
+```bash
 # Set environment variables
 export OPENAI_API_KEY=your_openai_api_key
 export GITHUB_TOKEN=your_github_personal_access_token
-
----
+```
 
 ### 4. Usage
 
+```bash
 # Place error logs inside the /logs directory
 # Then run the DevOps bot
 python devops_bot.py
+```
 
 The bot will:
-
 - Analyze the error log
 - Suggest a fix
 - (Optionally) Auto-create a GitHub issue with the error details and fix.
 
 ---
 
-### Project Structure
+## Project Structure
 
+```
 semantic-devops-bot/
 ├── agents/             # Specialized AI agents (Azure optimization, fix recommendation)
 ├── logs/               # Error log files to analyze
@@ -84,27 +83,28 @@ semantic-devops-bot/
 ├── README.md
 ├── requirements.txt
 └── venv/               # (Virtual environment)
-🎯 Future Plans
-✅ Multi-agent collaboration (triage, refund, billing agents)
+```
 
-✅ Automated CI/CD failure diagnosis and patch suggestions
+## 🎯 Future Plans
 
-✅ Azure DevOps integration for auto-scaling and optimization
+- ✅ Multi-agent collaboration (triage, refund, billing agents)
+- ✅ Automated CI/CD failure diagnosis and patch suggestions
+- ✅ Azure DevOps integration for auto-scaling and optimization
+- ✅ Slack / Teams bot integration
+- ✅ Web App Frontend (log upload → instant AI analysis)
 
-✅ Slack / Teams bot integration
+## 📜 License
 
-✅ Web App Frontend (log upload → instant AI analysis)
-
-📜 License
 This project is licensed under the MIT License.
 
-🙏 Acknowledgements
-Microsoft Semantic Kernel
+## 🙏 Acknowledgements
 
-OpenAI API
+- Microsoft Semantic Kernel
+- OpenAI API
+- GitHub API
 
-GitHub API
+## 📣 Connect with me!
 
-📣 Connect with me!
 If you find this project interesting or valuable, feel free to connect or collaborate.
+
 Built with 💻 and ❤️ for making DevOps smarter.
