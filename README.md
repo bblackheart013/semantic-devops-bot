@@ -3,6 +3,11 @@
 ![Built with](https://img.shields.io/badge/Built%20With-Semantic%20Kernel%20%26%20OpenAI-blueviolet)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 
+<p align="center">
+  <img src="assets/demo.png" alt="Semantic DevOps Bot Demo" width="700"/>
+</p>
+
+
 # Semantic DevOps Bot 🚀
 
 An intelligent AI-powered DevOps assistant that automatically **analyzes error logs**, **suggests real-time fixes**, and **creates GitHub issues** —  
