@@ -123,8 +123,6 @@ If you find this project interesting or valuable, feel free to connect or collab
 
 Built with 💻 and ❤️ for making DevOps smarter.
 
----
-
-## 🔎 Keywords (for SEO)
-
 semantic kernel, microsoft semantic kernel, openai api, devops automation, github issue bot, AI error analysis, error log analyzer, multi-agent systems, AI DevOps tools, python semantic kernel, devops bot, github automation, azure optimization, ci/cd failure diagnosis
+
+---
