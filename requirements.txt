@@ -1,0 +1,4 @@
+semantic-kernel
+PyGithub
+azure-identity
+azure-mgmt-resource
