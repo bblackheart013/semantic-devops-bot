@@ -60,6 +60,7 @@ source venv/bin/activate  # (on Windows: venv\Scripts\activate)
 # Install dependencies
 pip install -r requirements.txt
 ```
+---
 
 ### 3. Environment Setup
 
@@ -71,6 +72,7 @@ GITHUB_TOKEN=your_github_token
 GITHUB_REPO_OWNER=your_github_username
 GITHUB_REPO_NAME=semantic-devops-bot
 ```
+---
 
 ### 4. Usage
 
@@ -86,7 +88,7 @@ The system will:
 
 ---
 
-## Agents & Architecture
+## 5. Agents & Architecture
 
 ```
 semantic-devops-bot/
@@ -107,7 +109,9 @@ semantic-devops-bot/
 └── requirements.txt
 
 ```
-## 📸 Example Output
+---
+
+## 6. Example Output  📸 
 ```
 📌 Final Analysis Response:
 
@@ -123,7 +127,8 @@ Run: pip install requests
 PREVENTION:
 Add it to your requirements.txt file to ensure future environments include it.
 ```
-## 🧪 Sample Commands
+---
+## 7. Sample Commands 🧪
 
 ```
 # Example Docker error
@@ -132,6 +137,7 @@ python main.py --log-text "pull access denied for myapp/image, repository does n
 # Example Azure deployment error
 python main.py --log-text "DeploymentFailed: Resource group 'my-group' could not be found"
 ```
+---
 
 ## 🎯 Future Plans
 
@@ -140,10 +146,14 @@ python main.py --log-text "DeploymentFailed: Resource group 'my-group' could not
 - ✅ Azure DevOps integration for auto-scaling and optimization
 - ✅ Slack / Teams bot integration
 - ✅ Web App Frontend (log upload → instant AI analysis)
+  
+---
 
 ## 📜 License
 
 This project is licensed under the MIT License.
+
+---
 
 ## 🙏 Acknowledgements
 
@@ -152,11 +162,15 @@ This project is licensed under the MIT License.
 - [OpenAI API](https://platform.openai.com/docs/api-reference)
 - [GitHub API](https://docs.github.com/en/rest)
 
+---
+
 ## 📣 Connect with me!
 
 - [GitHub](https://github.com/bblackheart013)
 - [Google Scholar](https://scholar.google.com/citations?user=o1hrV0kAAAAJ&hl=en)
-- [LinkedIn](https://www.linkedin.com/in/mohd-sarfaraz-f-8bb52922a) 
+- [LinkedIn](https://www.linkedin.com/in/mohd-sarfaraz-f-8bb52922a)
+
+---
 
 If you find this project interesting or valuable, feel free to connect or collaborate.
 
