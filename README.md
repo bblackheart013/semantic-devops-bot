@@ -59,7 +59,7 @@ source venv/bin/activate  # (on Windows: venv\Scripts\activate)
 
 # Install dependencies
 pip install -r requirements.txt
-
+```
 
 ### 3. Environment Setup
 
@@ -147,7 +147,7 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgements
 
-- [AutoGen (by Microsoft)]([https://docs.github.com/en/rest](https://github.com/microsoft/autogen))
+- [AutoGen (by Microsoft)](https://docs.github.com/en/rest](https://github.com/microsoft/autogen )
 - [Microsoft Semantic Kernel](https://github.com/microsoft/semantic-kernel)
 - [OpenAI API](https://platform.openai.com/docs/api-reference)
 - [GitHub API](https://docs.github.com/en/rest)
