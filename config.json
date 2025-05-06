@@ -1,0 +1,16 @@
+{
+    "coordinator_name": "DevOpsCoordinator",
+    "analyzer_name": "DevOpsAnalyzer",
+    "llm_config": {
+      "config_list": [{"model": "gpt-4o"}],
+      "temperature": 0.2
+    },
+    "max_rounds": 10,  
+    "github": {
+      "create_issues": true,
+      "repo_owner": "bblackheart013",
+      "repo_name": "semantic-devops-bot",
+      "token": "${GITHUB_TOKEN}"
+    }
+  }
+  
