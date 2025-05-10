@@ -14,10 +14,14 @@ from datetime import datetime
 from typing import Dict, List, Optional, Union, Any
 from dotenv import load_dotenv
 load_dotenv()
+
 print("🔎 ENV DEBUG:")
 print("GITHUB_TOKEN:", os.getenv("GITHUB_TOKEN"))
 print("GITHUB_REPO_OWNER:", os.getenv("GITHUB_REPO_OWNER"))
 print("GITHUB_REPO_NAME:", os.getenv("GITHUB_REPO_NAME"))
+
+print("\n🔍 Starting program execution...")
+
 
 from tools.github_issue_tool import create_github_issue
 
@@ -30,6 +34,36 @@ from agents.analyzer_agent import AnalyzerAgent
 
 # Import GitHub integration (to be implemented)
 # from tools.github_tool import GitHubIssueTool
+
+def validate_github_config():
+    """Validate GitHub configuration from environment variables."""
+    print("\n🔍 Validating GitHub configuration:")
+    
+    token = os.getenv("GITHUB_TOKEN")
+    owner = os.getenv("GITHUB_REPO_OWNER")
+    repo = os.getenv("GITHUB_REPO_NAME")
+    
+    if token:
+        # Hide most of the token for security
+        masked_token = token[:4] + "*" * (len(token) - 8) + token[-4:] if len(token) > 8 else "****"
+        print(f"✅ GITHUB_TOKEN: {masked_token}")
+    else:
+        print("❌ GITHUB_TOKEN: Not found")
+        
+    if owner:
+        print(f"✅ GITHUB_REPO_OWNER: {owner}")
+    else:
+        print("❌ GITHUB_REPO_OWNER: Not found")
+        
+    if repo:
+        print(f"✅ GITHUB_REPO_NAME: {repo}")
+    else:
+        print("❌ GITHUB_REPO_NAME: Not found")
+        
+    if token and owner and repo:
+        print("✅ GitHub configuration is complete")
+    else:
+        print("⚠️ GitHub configuration is incomplete")
 
 def create_llm_config(temperature=0.1):
     """Create a properly formatted LLM configuration."""
@@ -357,6 +391,9 @@ def parse_arguments():
 
 def main():
     """Main entry point for the application."""
+    print("🚀 Main function started")
+
+
     # Parse command-line arguments
     args = parse_arguments()
     
@@ -364,6 +401,8 @@ def main():
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logger = setup_logging(log_level)
     logger.info("Starting Semantic DevOps Bot")
+
+    validate_github_config()
     
     # Load custom configuration if provided
     config = None
@@ -459,3 +498,8 @@ def main():
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
         return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+       

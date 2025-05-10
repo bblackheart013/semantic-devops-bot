@@ -1,39 +1,37 @@
-# test_github_issue.py
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# Import the function directly
+# Import the GitHub issue creation function
 from tools.github_issue_tool import create_github_issue
 
-# Create a simple test issue
-test_issue = {
-    "error_summary": "Test Issue Creation",
-    "root_cause": "Testing the GitHub integration",
-    "severity": "LOW",
-    "recommended_solution": "This is just a test",
-    "prevention": "No prevention needed"
+# Sample error analysis
+sample_analysis = {
+    "error_summary": "ModuleNotFoundError: No module named 'requests'",
+    "root_cause": "Missing 'requests' package in Python environment",
+    "severity": "MEDIUM",
+    "recommended_solution": "Install the package using pip install requests",
+    "prevention": "Include 'requests' in your requirements.txt"
 }
 
-# Print diagnostic info
-print("=== GitHub Issue Creation Test ===")
-token = os.getenv("GITHUB_TOKEN")
-owner = os.getenv("GITHUB_REPO_OWNER") or "bblackheart013"
-repo = os.getenv("GITHUB_REPO_NAME") or "semantic-devops-bot"
+# Get GitHub info from environment variables
+github_token = os.getenv("GITHUB_TOKEN")
+repo_owner = os.getenv("GITHUB_REPO_OWNER")
+repo_name = os.getenv("GITHUB_REPO_NAME")
 
-print(f"Using repository: {owner}/{repo}")
-print(f"Token available: {'Yes' if token else 'No'}")
+print(f"GitHub Configuration:")
+print(f"Token available: {'Yes' if github_token else 'No'}")
+print(f"Repository Owner: {repo_owner}")
+print(f"Repository Name: {repo_name}")
 
-# Try to create the issue
+# Try to create a GitHub issue
 try:
     result = create_github_issue(
-        issue_details=test_issue,
-        repo_owner=owner,
-        repo_name=repo,
-        github_token=token
+        issue_details=sample_analysis,
+        repo_owner=repo_owner,
+        repo_name=repo_name,
+        github_token=github_token
     )
-    print(f"Result: {result}")
+    print(f"\nResult: {result}")
 except Exception as e:
     print(f"Error: {str(e)}")
-
-print("=== Test Complete ===")

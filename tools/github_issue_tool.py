@@ -9,25 +9,16 @@ def create_github_issue(issue_details: Dict, repo_owner: Optional[str] = None,
                        repo_name: Optional[str] = None, github_token: Optional[str] = None) -> str:
     """
     Create a GitHub issue using analysis results.
-    
-    Args:
-        issue_details (Dict): {
-            "error_summary": str,
-            "root_cause": str,
-            "severity": str,
-            "recommended_solution": str,
-            "prevention": str,
-        }
-        repo_owner (Optional[str]): GitHub repository owner
-        repo_name (Optional[str]): GitHub repository name
-        github_token (Optional[str]): GitHub API token
-
-    Returns:
-        str: Confirmation message or issue URL.
     """
+    # Improved debugging
+    print(f"\n🔍 GitHub Issue Creation DEBUG:")
+    print(f"  Repository: {repo_owner}/{repo_name}")
+    print(f"  Token available: {'Yes' if github_token else 'No'}")
+    
     # Fallback to environment variable if token not provided
     if github_token is None:
         github_token = os.getenv("GITHUB_TOKEN")
+        print(f"  Using token from environment: {'Yes' if github_token else 'No'}")
     
     # Extracting issue information
     error_summary = issue_details.get('error_summary', 'Unknown error')
@@ -36,8 +27,8 @@ def create_github_issue(issue_details: Dict, repo_owner: Optional[str] = None,
     solution = issue_details.get('recommended_solution', 'No solution provided')
     prevention = issue_details.get('prevention', 'No prevention steps provided')
     
-    # Create issue title
-    title = f"[{severity}] {error_summary}"
+    # Create issue title - keep it under 256 chars (GitHub limit)
+    title = f"[{severity}] {error_summary[:200]}"
     
     # Create issue body
     body = f"""## Error Analysis
@@ -64,21 +55,47 @@ def create_github_issue(issue_details: Dict, repo_owner: Optional[str] = None,
     # Attempt to create GitHub issue if we have all necessary information
     if github_token and repo_owner and repo_name:
         try:
+            print(f"  Attempting to create issue in {repo_owner}/{repo_name}...")
             from github import Github
-            g = Github(github_token)
+            # Handle token format - make sure it doesn't have any whitespace
+            clean_token = github_token.strip()
+            g = Github(clean_token)
+            
+            # Verify authentication before attempting to create issue
+            try:
+                # Test authentication
+                user = g.get_user()
+                print(f"  Authenticated as: {user.login}")
+            except Exception as auth_error:
+                print(f"  ❌ Authentication failed: {str(auth_error)}")
+                return f"GitHub authentication failed: {str(auth_error)}"
+                
+            # Get the repository and create the issue    
             repo = g.get_repo(f"{repo_owner}/{repo_name}")
             issue = repo.create_issue(title=title, body=body)
             print(f"\n✅ GitHub Issue Created: {issue.html_url}")
             return f"GitHub issue created: {issue.html_url}"
+        except ImportError as ie:
+            print(f"\n❌ PyGithub not installed: {str(ie)}")
+            return f"Failed to create GitHub issue: PyGithub not installed. Run 'pip install PyGithub'"
         except Exception as e:
             print(f"\n❌ Error creating GitHub issue: {str(e)}")
             # Fall back to simulation if API call fails
             print_simulated_issue(title, body, repo_owner, repo_name, error_summary, root_cause, severity, solution, prevention)
             return f"Failed to create GitHub issue: {str(e)}"
     else:
+        missing = []
+        if not github_token:
+            missing.append("GitHub token")
+        if not repo_owner:
+            missing.append("Repository owner")
+        if not repo_name:
+            missing.append("Repository name")
+            
+        print(f"  ⚠️ Missing information: {', '.join(missing)}")
         # If we're missing information, just simulate the issue
         print_simulated_issue(title, body, repo_owner, repo_name, error_summary, root_cause, severity, solution, prevention)
-        return "GitHub issue created (simulated)"
+        return f"GitHub issue creation failed - missing information: {', '.join(missing)}"
 
 
 def print_simulated_issue(title, body, repo_owner, repo_name, error_summary, root_cause, severity, solution, prevention):
