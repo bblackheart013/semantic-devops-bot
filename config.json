@@ -9,8 +9,8 @@
     "github": {
       "create_issues": true,
       "repo_owner": "bblackheart013",
-      "repo_name": "semantic-devops-bot",
-      "token": "${GITHUB_TOKEN}"
+      "repo_name": "semantic-devops-bot"
     }
   }
+  
   
