@@ -133,7 +133,15 @@ jobs:
         ls -lh reports/ 2>/dev/null || echo "❌ reports/ directory not found"
         echo "Checking summary.md:"
         cat summary.md 2>/dev/null || echo "❌ summary.md not found"
-        
+    
+    - name: 🧪 Debug report output
+      run: |
+        echo "📁 Checking reports/ directory:"
+        ls -lah reports || echo "❌ reports directory missing"
+        echo ""
+        echo "📄 Checking summary.md:"
+        cat summary.md || echo "❌ summary.md missing"
+
     - name: 📤 Upload Analysis Report
       uses: actions/upload-artifact@v3
       with:
