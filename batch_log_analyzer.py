@@ -15,6 +15,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
 import concurrent.futures
+import traceback
 
 # Import main components
 from dotenv import load_dotenv
@@ -30,6 +31,10 @@ from main import DevOpsBot, setup_logging
 MAX_WORKERS = 4  # Maximum number of parallel processing threads
 DEFAULT_CONFIG_PATH = "config.json"
 REPORT_DIR = "reports"
+
+# Create reports directory at the beginning
+os.makedirs(REPORT_DIR, exist_ok=True)
+print(f"📁 Ensuring reports directory exists: {REPORT_DIR}")
 
 
 def scan_log_directory(directory_path: str, recursive: bool = False) -> List[str]:
@@ -111,6 +116,7 @@ def process_log_file(file_path: str, bot: DevOpsBot, logger: logging.Logger) -> 
         logger.error(f"Error processing {file_path}: {e}", exc_info=True)
         result["status"] = "error"
         result["error_message"] = str(e)
+        result["traceback"] = traceback.format_exc()
         print(f"❌ Error processing {os.path.basename(file_path)}: {e}")
     
     return result
@@ -138,6 +144,9 @@ def batch_analyze_logs(
     Returns:
         Dictionary with batch analysis results
     """
+    # Ensure reports directory exists
+    os.makedirs(REPORT_DIR, exist_ok=True)
+    
     # Set up logging
     logger = setup_logging(log_level=logging.INFO)
     logger.info(f"Starting batch analysis of logs in: {log_dir}")
@@ -149,11 +158,22 @@ def batch_analyze_logs(
     
     if file_count == 0:
         print("❌ No log files found in the specified directory")
-        return {
+        # Create a minimal report even if no files found
+        summary = {
             "status": "error",
             "message": "No log files found",
             "timestamp": datetime.now().isoformat(),
+            "directory": log_dir,
+            "recursive": recursive,
+            "total_files": 0,
+            "successful": 0,
+            "failed": 0,
+            "success_rate": 0,
+            "total_processing_time_seconds": 0,
+            "results": []
         }
+        save_report(summary)
+        return summary
     
     # Load configuration
     config = None
@@ -279,16 +299,32 @@ def save_report(report: Dict[str, Any]) -> str:
     filename = f"batch_analysis_report_{timestamp}.json"
     file_path = os.path.join(REPORT_DIR, filename)
     
-    # Save report to file
-    with open(file_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    try:
+        # Save report to file
+        with open(file_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"\n📄 Report saved to: {file_path}")
+    except Exception as e:
+        print(f"❌ Error saving report: {e}")
+        # Try saving to current directory as fallback
+        fallback_path = filename
+        try:
+            with open(fallback_path, 'w') as f:
+                json.dump(report, f, indent=2)
+            print(f"📄 Report saved to fallback location: {fallback_path}")
+            file_path = fallback_path
+        except Exception as inner_e:
+            print(f"❌ Critical error: Could not save report anywhere: {inner_e}")
     
-    print(f"\n📄 Report saved to: {file_path}")
     return file_path
 
 
 def main():
     """Main entry point for batch log analysis."""
+    # Create reports directory at the start
+    os.makedirs(REPORT_DIR, exist_ok=True)
+    
     # Configure argument parser
     parser = argparse.ArgumentParser(
         description="Semantic DevOps Bot - Batch Log Analyzer",
@@ -353,6 +389,15 @@ def main():
         )
     except Exception as e:
         print(f"❌ Error: {e}")
+        # Create a minimal report even on failure
+        error_report = {
+            "status": "critical_error",
+            "message": f"Critical error in batch processing: {str(e)}",
+            "timestamp": datetime.now().isoformat(),
+            "traceback": traceback.format_exc(),
+            "args": vars(args)
+        }
+        save_report(error_report)
         return 1
     
     return 0

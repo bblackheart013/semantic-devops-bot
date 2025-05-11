@@ -72,6 +72,8 @@ jobs:
         fi
         
         echo "Running with args: $ARGS"
+        # Create reports directory before running the script to ensure it exists
+        mkdir -p reports
         python batch_log_analyzer.py $ARGS
         
     - name: 📊 Generate analysis summary
@@ -80,40 +82,57 @@ jobs:
         echo "- **Date:** $(date)" >> summary.md
         echo "- **Analyzed by:** Semantic DevOps Bot" >> summary.md
         echo "" >> summary.md
-        echo "### 📝 Analysis Summary" >> summary.md
         
-        # Extract summary from the latest report
-        LATEST_REPORT=$(ls -t reports/batch_analysis_report_*.json | head -1)
-        if [ -f "$LATEST_REPORT" ]; then
-          echo "Latest report: $LATEST_REPORT"
+        # Check if reports directory exists and has any reports
+        if [ -d "reports" ]; then
+          # Try to find the latest report
+          LATEST_REPORT=$(ls -t reports/batch_analysis_report_*.json 2>/dev/null | head -1 || echo "")
           
-          # Extract key metrics using jq (pre-installed on GitHub runners)
-          echo "| Metric | Value |" >> summary.md
-          echo "| ------ | ----- |" >> summary.md
-          echo "| Files Analyzed | $(jq '.total_files' $LATEST_REPORT) |" >> summary.md
-          echo "| Success Rate | $(jq '.success_rate * 100' $LATEST_REPORT)% |" >> summary.md
-          echo "| Processing Time | $(jq '.total_processing_time_seconds' $LATEST_REPORT) seconds |" >> summary.md
-          
-          # List errors found
-          echo "" >> summary.md
-          echo "### 🛑 Errors Found" >> summary.md
-          echo "| Error Type | Count |" >> summary.md
-          echo "| ---------- | ----- |" >> summary.md
-          jq -r '.error_types | to_entries[] | "| \(.key) | \(.value) |"' $LATEST_REPORT >> summary.md
-          
-          # List created issues if any
-          if jq -e '.results[0].github_issue_url' $LATEST_REPORT &>/dev/null; then
+          if [ -f "$LATEST_REPORT" ]; then
+            echo "Latest report: $LATEST_REPORT"
+            echo "### 📝 Analysis Summary" >> summary.md
+            
+            # Extract key metrics using jq (pre-installed on GitHub runners)
+            echo "| Metric | Value |" >> summary.md
+            echo "| ------ | ----- |" >> summary.md
+            echo "| Files Analyzed | $(jq '.total_files' $LATEST_REPORT) |" >> summary.md
+            echo "| Success Rate | $(jq '.success_rate * 100' $LATEST_REPORT)% |" >> summary.md
+            echo "| Processing Time | $(jq '.total_processing_time_seconds' $LATEST_REPORT) seconds |" >> summary.md
+            
+            # List errors found
             echo "" >> summary.md
-            echo "### 🔗 GitHub Issues Created" >> summary.md
-            echo "| File | Issue URL |" >> summary.md
-            echo "| ---- | --------- |" >> summary.md
-            jq -r '.results[] | select(.github_issue_url != null) | "| \(.file_name) | [\(.error_type)](\(.github_issue_url)) |"' $LATEST_REPORT >> summary.md || true
+            echo "### 🛑 Errors Found" >> summary.md
+            echo "| Error Type | Count |" >> summary.md
+            echo "| ---------- | ----- |" >> summary.md
+            jq -r '.error_types | to_entries[] | "| \(.key) | \(.value) |"' $LATEST_REPORT >> summary.md
+            
+            # List created issues if any
+            if jq -e '.results[0].github_issue_url' $LATEST_REPORT &>/dev/null; then
+              echo "" >> summary.md
+              echo "### 🔗 GitHub Issues Created" >> summary.md
+              echo "| File | Issue URL |" >> summary.md
+              echo "| ---- | --------- |" >> summary.md
+              jq -r '.results[] | select(.github_issue_url != null) | "| \(.file_name) | [\(.error_type)](\(.github_issue_url)) |"' $LATEST_REPORT >> summary.md || true
+            fi
+          else
+            echo "### ⚠️ No Analysis Available" >> summary.md
+            echo "No report files were found in the reports directory." >> summary.md
           fi
         else
-          echo "No report file found" >> summary.md
+          echo "### ⚠️ No Analysis Available" >> summary.md
+          echo "The reports directory does not exist." >> summary.md
+          # Create an empty reports directory to prevent the upload step from failing
+          mkdir -p reports
         fi
         
         cat summary.md
+    
+    - name: 📁 Debug file existence
+      run: |
+        echo "Listing reports directory:"
+        ls -lh reports/ 2>/dev/null || echo "❌ reports/ directory not found"
+        echo "Checking summary.md:"
+        cat summary.md 2>/dev/null || echo "❌ summary.md not found"
         
     - name: 📤 Upload Analysis Report
       uses: actions/upload-artifact@v3
@@ -122,6 +141,7 @@ jobs:
         path: |
           reports/*.json
           summary.md
+        if-no-files-found: warn
           
     - name: 📝 Create PR Comment
       if: github.event_name == 'pull_request'
