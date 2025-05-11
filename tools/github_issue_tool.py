@@ -13,12 +13,22 @@ def create_github_issue(issue_details: Dict, repo_owner: Optional[str] = None,
     # Improved debugging
     print(f"\n🔍 GitHub Issue Creation DEBUG:")
     print(f"  Repository: {repo_owner}/{repo_name}")
-    print(f"  Token available: {'Yes' if github_token else 'No'}")
     
-    # Fallback to environment variable if token not provided
-    if github_token is None:
-        github_token = os.getenv("GITHUB_TOKEN")
-        print(f"  Using token from environment: {'Yes' if github_token else 'No'}")
+    # Try multiple sources for GitHub token
+    if github_token is None or github_token.strip() == "":
+        # First try direct environment variable
+        github_token = os.environ.get("GITHUB_TOKEN")
+        if github_token:
+            print(f"  Using token from direct environment access: YES (length: {len(github_token)})")
+        else:
+            # Try with dotenv if direct access failed
+            github_token = os.getenv("GITHUB_TOKEN")
+            print(f"  Using token from dotenv: {'YES (length: ' + str(len(github_token)) + ')' if github_token else 'NO'}")
+    else:
+        print(f"  Using provided token parameter: YES (length: {len(github_token)})")
+    
+    # Final token status
+    print(f"  Final token status: {'AVAILABLE' if github_token else 'MISSING'}")
     
     # Extracting issue information
     error_summary = issue_details.get('error_summary', 'Unknown error')
@@ -56,7 +66,12 @@ def create_github_issue(issue_details: Dict, repo_owner: Optional[str] = None,
     if github_token and repo_owner and repo_name:
         try:
             print(f"  Attempting to create issue in {repo_owner}/{repo_name}...")
-            from github import Github
+            try:
+                from github import Github
+            except ImportError:
+                print(f"\n❌ PyGithub not installed")
+                return f"Failed to create GitHub issue: PyGithub not installed. Run 'pip install PyGithub'"
+                
             # Handle token format - make sure it doesn't have any whitespace
             clean_token = github_token.strip()
             g = Github(clean_token)
@@ -75,9 +90,6 @@ def create_github_issue(issue_details: Dict, repo_owner: Optional[str] = None,
             issue = repo.create_issue(title=title, body=body)
             print(f"\n✅ GitHub Issue Created: {issue.html_url}")
             return f"GitHub issue created: {issue.html_url}"
-        except ImportError as ie:
-            print(f"\n❌ PyGithub not installed: {str(ie)}")
-            return f"Failed to create GitHub issue: PyGithub not installed. Run 'pip install PyGithub'"
         except Exception as e:
             print(f"\n❌ Error creating GitHub issue: {str(e)}")
             # Fall back to simulation if API call fails

@@ -19,6 +19,11 @@ import concurrent.futures
 # Import main components
 from dotenv import load_dotenv
 load_dotenv()
+# Fix token passing
+github_token = os.getenv("GITHUB_TOKEN")
+if github_token:
+    os.environ["GITHUB_TOKEN"] = github_token.strip()
+    print(f"GitHub token loaded and cleaned: {github_token[:4]}***{github_token[-4:] if len(github_token) > 8 else '***'}")
 from main import DevOpsBot, setup_logging
 
 # Constants
@@ -160,7 +165,8 @@ def batch_analyze_logs(
         except Exception as e:
             logger.error(f"Failed to load configuration: {e}")
             config = None
-    
+    if config and "github" in config:
+        config["github"]["token"] = os.getenv("GITHUB_TOKEN")
     # Enable GitHub issue creation if requested
     if create_issues and config is not None:
         if "github" not in config:

@@ -148,11 +148,19 @@ class AgentRouter:
         Returns:
             Dictionary with agent types as keys and confidence scores as values
         """
+        # Initialize scores FIRST - this was the bug
+        scores = {agent_type: 0.0 for agent_type in self.error_patterns.keys()}
+        
+        # Heuristic pre-boosts for known error strings
+        if "ModuleNotFoundError" in log_content or "ImportError" in log_content:
+            scores["build_error"] += 5.0
+        elif "Docker" in log_content or "container" in log_content or "deployment failed" in log_content:
+            scores["deployment_error"] += 5.0
+        elif "Azure" in log_content or "Resource group" in log_content:
+            scores["azure_error"] += 5.0
+        
         # Normalize log content
         log_lower = log_content.lower()
-        
-        # Initialize scores
-        scores = {agent_type: 0.0 for agent_type in self.error_patterns.keys()}
         
         # Calculate scores based on pattern matches
         for agent_type, patterns in self.error_patterns.items():

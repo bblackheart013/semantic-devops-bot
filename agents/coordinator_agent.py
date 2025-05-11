@@ -352,7 +352,7 @@ class CoordinatorAgent(ConversableAgent):
 
     def route_to_specialist(self, error_type: str, log_content: str, context: Optional[Dict] = None) -> Dict:
         """
-        Route the log content to the appropriate specialist agent with enhanced context.
+        Route the log content to the appropriate specialist agent with enhanced context-based routing.
         Includes retry logic and load balancing for fault tolerance.
         
         Args:
@@ -366,22 +366,44 @@ class CoordinatorAgent(ConversableAgent):
         # Update routing metrics
         self.routing_metrics["total_logs_processed"] += 1
         
+        # Define alternative specialists for fallback strategy
+        alt_specialists = {
+            "build_error": ["general_error"],
+            "deployment_error": ["build_error", "general_error"],
+            "azure_error": ["deployment_error", "general_error"],
+            "general_error": ["build_error"]
+        }
+        
         # Check if we have a specialist for this error type
+        original_error_type = error_type
         if error_type not in self.specialist_agents:
             self.logger.warning(f"No specialist registered for {error_type}, attempting fallback")
+            print(f"⚠️ No specialist found for {error_type}, trying alternatives...")
             
-            # Try to use general_error agent if available
-            if "general_error" in self.specialist_agents:
-                self.logger.info(f"Falling back to general_error agent")
-                error_type = "general_error"
-            else:
-                # No specialists available
-                self.routing_metrics["failed_routes"] += 1
-                return {
-                    "status": "unrouted", 
-                    "message": "No specialist available for this error type",
-                    "error_type": error_type
-                }
+            # Try to find a suitable alternative
+            for alt_type in alt_specialists.get(error_type, ["general_error"]):
+                if alt_type in self.specialist_agents:
+                    error_type = alt_type
+                    self.logger.info(f"Falling back to {alt_type} agent")
+                    print(f"🔄 Fallback: Using {alt_type} specialist instead")
+                    break
+            
+            # If still no specialist available after trying alternatives
+            if error_type not in self.specialist_agents:
+                # Try to use general_error agent if available
+                if "general_error" in self.specialist_agents:
+                    self.logger.info(f"Falling back to general_error agent")
+                    print(f"🔄 Final fallback: Using general_error specialist")
+                    error_type = "general_error"
+                else:
+                    # No specialists available
+                    self.routing_metrics["failed_routes"] += 1
+                    print(f"❌ Routing failed: No suitable specialist found")
+                    return {
+                        "status": "unrouted", 
+                        "message": "No specialist available for this error type",
+                        "error_type": original_error_type
+                    }
         
         # Prepare an enhanced message with context if available
         enhanced_message = log_content
@@ -409,6 +431,9 @@ class CoordinatorAgent(ConversableAgent):
         attempted_specialists = set()
         current_model_index = 0  # Track which model in the config to use
         
+        # Print routing decision
+        print(f"🔍 Routing to: {error_type} specialist ({self.specialist_agents[error_type].name})")
+        
         while retry_count <= self.max_retries:
             # Select a specialist
             if retry_count == 0:
@@ -427,11 +452,13 @@ class CoordinatorAgent(ConversableAgent):
                     # Last retry: prioritize general_error if available
                     specialist = self.specialist_agents["general_error"]
                     self.logger.info(f"Final retry: using general_error specialist")
+                    print(f"🔁 Final retry: Using general_error specialist")
                 elif available_specialists:
                     # Try another random specialist with cryptographic-quality randomness
                     fallback_type = secrets.choice(list(available_specialists.keys()))
                     specialist = available_specialists[fallback_type]
                     self.logger.info(f"Retry {retry_count}: trying {fallback_type} specialist: {specialist.name}")
+                    print(f"🔁 Retry {retry_count}: Trying {fallback_type} specialist ({specialist.name})")
                 else:
                     # No more specialists to try
                     break
@@ -451,6 +478,7 @@ class CoordinatorAgent(ConversableAgent):
                     # Check if it's an OpenAI error we can handle with model fallback
                     if OPENAI_AVAILABLE and isinstance(e, (RateLimitError, APIError, ServiceUnavailableError)):
                         self.logger.warning(f"OpenAI API error: {e}. Attempting model fallback...")
+                        print(f"⚠️ OpenAI API error: {str(e)[:100]}... Attempting fallback model")
                         
                         # Try to fallback to next model in config list
                         if hasattr(specialist, 'llm_config') and 'config_list' in specialist.llm_config:
@@ -461,6 +489,7 @@ class CoordinatorAgent(ConversableAgent):
                                 current_model_index += 1
                                 model_info = config_list[current_model_index]
                                 self.logger.info(f"Falling back to model: {model_info.get('model', 'unknown')}")
+                                print(f"🔄 Falling back to model: {model_info.get('model', 'unknown')}")
                                 
                                 # Create temporary config with just this model
                                 temp_config = specialist.llm_config.copy()
@@ -489,6 +518,7 @@ class CoordinatorAgent(ConversableAgent):
                     "elapsed_seconds": elapsed_time
                 })
                 self.logger.info(f"Specialist {specialist.name} responded in {elapsed_time:.2f} seconds")
+                print(f"⏱️ {specialist.name} responded in {elapsed_time:.2f} seconds")
                 
                 # Update routing metrics
                 self.routing_metrics["successful_routes"] += 1
@@ -504,19 +534,22 @@ class CoordinatorAgent(ConversableAgent):
                 
             except Exception as e:
                 self.logger.error(f"Error getting response from specialist {specialist.name}: {e}")
+                print(f"❌ Error with {specialist.name}: {str(e)[:100]}...")
                 retry_count += 1
                 
                 if retry_count > self.max_retries:
                     self.logger.error(f"Max retries reached. Giving up.")
+                    print(f"⛔ Max retries reached. Giving up.")
                     break
                 
                 self.logger.info(f"Retrying with different specialist (attempt {retry_count}/{self.max_retries})")
         
         # If we get here, all retries failed
         self.routing_metrics["failed_routes"] += 1
+        print(f"❌ All routing attempts failed after {retry_count} retries")
         return {
             "status": "failed",
-            "error_type": error_type,
+            "error_type": original_error_type,
             "attempted_specialists": list(attempted_specialists),
             "error": "All specialist routing attempts failed after retries"
         }
@@ -539,6 +572,9 @@ class CoordinatorAgent(ConversableAgent):
         self.logger.info("Starting log analysis")
         
         try:
+            # Print diagnostic info for debugging
+            self.print_routing_diagnostic(log_content)
+            
             # Detect the error type
             error_type, confidence = self.detect_error_type(log_content)
             self.logger.info(f"Detected error type: {error_type} (confidence: {confidence:.2f})")
@@ -546,6 +582,19 @@ class CoordinatorAgent(ConversableAgent):
             # Get contextual information
             context = self.get_log_context(log_content)
             self.logger.info(f"Extracted context: {context}")
+            
+            # Apply context-based overrides for more accurate routing
+            original_error_type = error_type
+            if context and context.get("error_type") == "python_import_error":
+                error_type = "build_error"  # Override for Python import errors
+            elif context and context.get("error_type") == "docker_error":
+                error_type = "deployment_error"  # Override for Docker errors
+            elif context and context.get("error_type") == "azure_resource_error":
+                error_type = "azure_error"  # Override for Azure resource errors
+                
+            if original_error_type != error_type:
+                self.logger.info(f"Overriding error type from {original_error_type} to {error_type} based on context")
+                print(f"🔄 Routing adjustment: {original_error_type} → {error_type} (based on context)")
             
             # Route to the specialist with retry logic
             specialist_response = self.route_to_specialist(error_type, log_content, context)
@@ -573,6 +622,7 @@ class CoordinatorAgent(ConversableAgent):
             })
             
             self.logger.info(f"Completed log analysis for {error_type} in {elapsed_time:.2f} seconds")
+            print(f"✅ Analysis routed to {specialist_response.get('specialist', 'unknown')} specialist")
             return analysis
             
         except Exception as e:
@@ -766,7 +816,18 @@ class CoordinatorAgent(ConversableAgent):
             pass
         return "unknown"
 
-
+    def print_routing_diagnostic(self, log_content: str) -> None:
+        """Helper method to diagnose routing decisions."""
+        print("\n=== ROUTING DIAGNOSTIC ===")
+        error_type, confidence = self.detect_error_type(log_content)
+        context = self.get_log_context(log_content)
+        
+        print(f"Log excerpt: {log_content[:100].strip()}...")
+        print(f"Detected type: {error_type} (confidence: {confidence:.2f})")
+        print(f"Context clues: {context}")
+        print(f"Available specialists: {list(self.specialist_agents.keys())}")
+        print("===========================\n")
+          
 def main():
     """
     Main entry point for the coordinator agent CLI.
