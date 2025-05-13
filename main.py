@@ -274,100 +274,141 @@ class DevOpsBot:
         }
     }
     
-    def analyze_log(self, log_content):
-        """Analyze a log file using the analyzer agent directly."""
-        print("\n🔍 Starting log analysis...")
-        self.logger.info("Starting log analysis")
-        
-        # Use the analyzer agent directly
-        print("⏳ Simulating log analysis with dummy result...")
-        analysis_result = {
-            "error_summary": "ModuleNotFoundError: No module named 'requests'",
-            "root_cause": "Missing 'requests' package in Python environment",
-            "severity": "MEDIUM",
-            "recommended_solution": "Install the package using `pip install requests`",
-            "prevention": "Include 'requests' in your requirements.txt"
-        }
-        print(f"\n📦 ANALYSIS RESULT: {json.dumps(analysis_result, indent=2)}")
+    """
+Enhanced analyze_log method for DevOpsBot class - 
+Replace the existing method in main.py with this implementation.
+"""
 
-
+def analyze_log(self, log_content):
+    """
+    Analyze a log file using the analyzer agent directly.
+    
+    Args:
+        log_content: The error log content to analyze
         
-        # Print the final analysis response
-        print("\n📌 Final Analysis Response:")
-        print(f"ERROR SUMMARY: {analysis_result.get('error_summary', 'Not available')}")
-        print(f"ROOT CAUSE: {analysis_result.get('root_cause', 'Not available')}")
-        print(f"SEVERITY: {analysis_result.get('severity', 'Not available')}")
-        print(f"RECOMMENDED SOLUTION: {analysis_result.get('recommended_solution', 'Not available')}")
-        print(f"PREVENTION: {analysis_result.get('prevention', 'Not available')}")
-        
-        # If GitHub issue creation is enabled, create an issue
-        if self.config.get("github", {}).get("create_issues", False):
-            print("\n🔧 GitHub Issue Creation:")
-            
-            github_config = self.config.get("github", {})
-            repo_owner = github_config.get("repo_owner")
-            repo_name = github_config.get("repo_name")
-            github_token = github_config.get("token")
-            
-            print(f"Repository: {repo_owner or 'Not set'}/{repo_name or 'Not set'}")
-            print(f"Token available: {'Yes' if github_token else 'No'}")
-            
-            if repo_owner and repo_name and github_token:
-                print("Repo owner:", repo_owner)
-                print("Repo name:", repo_name)
-                print("Token exists:", bool(github_token))
-
-                print(f"\n🚀 Creating GitHub issue in {repo_owner}/{repo_name}...")
-                print("🛠️ Calling create_github_issue() now...")
+    Returns:
+        A dictionary with the analysis results
+    """
+    self.logger.info("Starting log analysis")
+    
+    try:
+        # If we have a valid analyzer, use it
+        if hasattr(self, 'analyzer') and self.analyzer:
+            # Detect the log type for better analysis
+            log_type = "unknown"
+            if "ModuleNotFoundError" in log_content or "ImportError" in log_content:
+                log_type = "python"
+            elif "docker" in log_content.lower() or "container" in log_content.lower():
+                log_type = "docker" 
+            elif "azure" in log_content.lower() or "resource group" in log_content.lower():
+                log_type = "azure"
                 
-                # Using the GitHub Issue Tool
-                try:
-                    from tools.github_issue_tool import create_github_issue
-                    issue_result = create_github_issue(
-                        issue_details=analysis_result,
-                        repo_owner=repo_owner,
-                        repo_name=repo_name,
-                        github_token=github_token
-                    )
-                    print(f"\n✅ GitHub Issue Result: {issue_result}")
-                except ImportError as e:
-                    print(f"\n❌ Failed to import GitHub issue tool: {str(e)}")
-                    print("Make sure you have the tools/github_issue_tool.py file in your project.")
-                    self.logger.error(f"Import error for GitHub issue tool: {e}")
-                except Exception as e:
-                    print(f"\n❌ GitHub Issue Creation Failed: {str(e)}")
-                    print(f"❌ EXCEPTION during GitHub issue creation: {e}")
-                    self.logger.error(f"Failed to create GitHub issue: {e}", exc_info=True)
-            else:
-                print("\n⚠️ GitHub issue creation skipped - missing configuration.")
-                missing = []
-                if not repo_owner:
-                    missing.append("Repository owner")
-                if not repo_name:
-                    missing.append("Repository name")
-                if not github_token:
-                    missing.append("GitHub token")
-                print(f"Missing: {', '.join(missing)}")
-                print("Set these values in your config.json or .env file, or pass them as command line arguments.")
+            self.logger.info(f"Detected log type: {log_type}")
+            
+            # Use the analyzer agent
+            try:
+                # Try to use the actual analyzer
+                analysis_result = self.analyzer.analyze_log(log_content)
+                self.logger.info("Analyzer agent returned analysis")
+                
+                # Return the analysis result with metadata
+                return {
+                    "status": "success",
+                    "error_type": analysis_result.get("error_summary", "Unknown error").split(":")[0],
+                    "analysis": analysis_result,
+                    "source": "analyzer_agent"
+                }
+                
+            except Exception as e:
+                self.logger.error(f"Error using analyzer agent: {e}")
+                # Fall back to coordinator based routing
+                pass
+                
+        # Use coordinator-based routing if available
+        if hasattr(self, 'coordinator') and self.coordinator:
+            try:
+                coord_result = self.coordinator.analyze_log(log_content)
+                self.logger.info("Coordinator completed analysis")
+                return coord_result
+            except Exception as e:
+                self.logger.error(f"Error using coordinator: {e}")
+                # Fall back to fallback option
+        
+        # Fallback to a simple pattern-based analysis
+        self.logger.warning("Using fallback pattern-based analysis")
+        
+        # Check for common error patterns
+        error_type = "unknown"
+        root_cause = "Could not determine root cause"
+        recommended_solution = "Please review the log for more details"
+        
+        if "ModuleNotFoundError: No module named 'requests'" in log_content:
+            error_type = "python_import_error"
+            error_summary = "ModuleNotFoundError: No module named 'requests'"
+            root_cause = "The Python script is trying to import the 'requests' library, but it's not installed in the current environment"
+            recommended_solution = "Install the missing package using pip:\n\npip install requests"
+            prevention = "Use requirements.txt to document dependencies and virtual environments to isolate project dependencies"
+            severity = "Medium - Application cannot run without this dependency"
+            severity_level = "MEDIUM"
+            
+        elif "pull access denied" in log_content and "repository does not exist" in log_content:
+            error_type = "docker_auth_error"
+            error_summary = "Docker pull access denied: repository does not exist or requires authentication"
+            root_cause = "Docker is unable to pull the specified image because it either does not exist or you don't have permission to access it"
+            recommended_solution = "1. Verify the image name is correct\n2. Use 'docker login' to authenticate with the registry\n3. Check that you have access to the repository"
+            prevention = "Use a CI/CD system with proper credential management for automated deployments"
+            severity = "High - Deployment is blocked until resolved"
+            severity_level = "HIGH"
+            
+        elif "DeploymentFailed" in log_content and "Resource group" in log_content and "could not be found" in log_content:
+            error_type = "azure_resource_error"
+            error_summary = "Azure Deployment Failed: Resource group not found"
+            root_cause = "The specified Azure resource group does not exist in the current subscription"
+            recommended_solution = "1. Verify the resource group name\n2. Check that you're using the correct Azure subscription\n3. Create the resource group if needed using 'az group create'"
+            prevention = "Use infrastructure as code tools like ARM templates or Terraform to manage resource groups"
+            severity = "Medium - Deployment cannot proceed"
+            severity_level = "MEDIUM"
+            
         else:
-            print("\n📝 GitHub issue creation is disabled")
-        
-        # Add a simple conversation record for saving
-        self.groupchat.messages = [{
-            "content": f"Analysis of error: {log_content}",
-            "role": "user"
-        }, {
-            "content": str(analysis_result),
-            "role": "assistant"
-        }]
-        
-        print("\n✨ Analysis completed successfully.")
-        
-        return {
-            "analysis": analysis_result,
-            "messages": self.groupchat.messages
+            # Generic error case
+            error_type = "unknown_error"
+            error_summary = log_content[:100] + ("..." if len(log_content) > 100 else "")
+            root_cause = "Could not determine the specific cause of this error"
+            recommended_solution = "Review the complete log for more context and details"
+            prevention = "Implement comprehensive logging and monitoring"
+            severity = "Medium - Unknown impact"
+            severity_level = "MEDIUM"
+            
+        analysis_result = {
+            "error_summary": error_summary,
+            "root_cause": root_cause,
+            "severity": severity,
+            "severity_level": severity_level,
+            "recommended_solution": recommended_solution,
+            "prevention": prevention
         }
-
+            
+        return {
+            "status": "success",
+            "error_type": error_type,
+            "analysis": analysis_result,
+            "source": "fallback_analysis"
+        }
+        
+    except Exception as e:
+        self.logger.error(f"Error in analyze_log: {e}")
+        return {
+            "status": "error",
+            "error": str(e),
+            "analysis": {
+                "error_summary": "Analysis failed",
+                "root_cause": f"Internal error: {str(e)}",
+                "severity": "Unknown",
+                "severity_level": "UNKNOWN",
+                "recommended_solution": "Please try again or check server logs",
+                "prevention": "Report this issue to the development team"
+            }
+        }
 
 def parse_arguments():
     """Parse command-line arguments."""

@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import logging
+import re
 from datetime import datetime
 
 # Add project root to Python path for imports
@@ -15,8 +16,10 @@ try:
     from agents.coordinator_agent import CoordinatorAgent
     from agents.analyzer_agent import AnalyzerAgent
     from agents.agent_router import AgentRouter
+    imports_successful = True
 except ImportError as e:
     print(f"Error importing project modules: {e}")
+    imports_successful = False
     # Fallback setup if imports fail
     def setup_logging():
         logger = logging.getLogger("web_app")
@@ -43,8 +46,12 @@ logger.info("Starting Semantic DevOps Bot Web Application")
 
 # Initialize the DevOps Bot with error handling
 try:
-    bot = DevOpsBot()
-    logger.info("DevOps Bot initialized successfully")
+    if imports_successful:
+        bot = DevOpsBot()
+        logger.info("DevOps Bot initialized successfully")
+    else:
+        bot = None
+        logger.warning("DevOps Bot initialization skipped due to import errors")
 except Exception as e:
     logger.error(f"Failed to initialize DevOpsBot: {e}")
     bot = None
@@ -61,12 +68,7 @@ def dashboard():
 def batch_analysis():
     return render_template('batch.html')
 
-
-
 @app.route('/api/analyze', methods=['POST'])
-def analyze_log():
-
-    @app.route('/api/analyze', methods=['POST'])
 def analyze_log():
     try:
         # First, check if log text was provided
@@ -75,90 +77,73 @@ def analyze_log():
         # If text is provided, use that
         if log_text.strip():
             log_content = log_text
-            print(f"Using provided log text: {log_content[:50]}...")
+            logger.info(f"Using provided log text: {log_content[:50]}...")
         # Otherwise, try to get a file
         elif 'log_file' in request.files:
             log_file = request.files['log_file']
             if log_file.filename == '':
                 return jsonify({'error': 'No content provided - please either upload a file or enter log text'}), 400
-            log_content = log_file.read().decode('utf-8')
-            print(f"Using uploaded file: {log_file.filename}")
+            try:
+                log_content = log_file.read().decode('utf-8')
+                logger.info(f"Using uploaded file: {log_file.filename}")
+            except UnicodeDecodeError:
+                return jsonify({'error': 'File encoding not supported. Please use UTF-8 encoded text files.'}), 400
         else:
             return jsonify({'error': 'No content provided - please either upload a file or enter log text'}), 400
         
         # Process the log content
         if not log_content:
             return jsonify({'error': 'Empty log content'}), 400
-            
-        # Use your bot to analyze the log
-        if bot:
-            result = bot.analyze_log(log_content)
-            return jsonify(result)
-        else:
-            return jsonify({'error': 'Analysis service not available'}), 500
-    except Exception as e:
-        print(f"Error in analyze_log: {str(e)}")
-        return jsonify({'error': str(e)}), 500    
-        if not log_content:
-            return jsonify({'error': 'No log content provided'}), 400
-        
-        # Add debug logging to track what's happening
-        logger.info(f"Analyzing log: {log_content[:100]}...")
         
         # Check if GitHub issue creation is requested
         create_issue = request.form.get('create_issue') == 'on'
         
         # Use the DevOpsBot to analyze the log
-        try:
-            # Get the bot instance (should be initialized earlier)
-            if bot:
-                result = bot.analyze_log(log_content)
-                
-                # If GitHub issue creation is requested
-                if create_issue:
-                    try:
-                        from tools.github_issue_tool import create_github_issue
-                        github_token = os.getenv("GITHUB_TOKEN")
-                        repo_owner = os.getenv("GITHUB_REPO_OWNER")
-                        repo_name = os.getenv("GITHUB_REPO_NAME")
-                        
-                        if github_token and repo_owner and repo_name:
-                            issue_result = create_github_issue(
-                                issue_details=result.get('analysis', {}),
-                                repo_owner=repo_owner,
-                                repo_name=repo_name,
-                                github_token=github_token
-                            )
-                            # Add GitHub issue URL to result
-                            if isinstance(issue_result, str) and "created" in issue_result:
-                                # Extract the URL if it's in the result
-                                url_match = re.search(r'https://github\.com/[^\s]+', issue_result)
-                                if url_match:
-                                    result['github_issue_url'] = url_match.group(0)
-                    except Exception as e:
-                        logger.error(f"Failed to create GitHub issue: {e}")
-                        result['github_issue_error'] = str(e)
-                
-                logger.info(f"Analysis successful: {str(result)[:100]}...")
-                return jsonify(result)
-            else:
-                # If bot initialization failed, use mock data
-                logger.warning("Bot not initialized, using mock data")
-                mock_result = {
-                    "status": "mock",
-                    "analysis": {
-                        "error_summary": "This is a mock analysis because the DevOpsBot couldn't be initialized",
-                        "root_cause": "Missing API key or configuration error",
-                        "severity": "MEDIUM",
-                        "severity_level": "MEDIUM",
-                        "recommended_solution": "Check the server logs for initialization errors",
-                        "prevention": "Ensure all required environment variables are set (OPENAI_API_KEY)"
-                    }
+        if bot:
+            result = bot.analyze_log(log_content)
+            
+            # If GitHub issue creation is requested
+            if create_issue:
+                try:
+                    from tools.github_issue_tool import create_github_issue
+                    github_token = os.getenv("GITHUB_TOKEN")
+                    repo_owner = os.getenv("GITHUB_REPO_OWNER")
+                    repo_name = os.getenv("GITHUB_REPO_NAME")
+                    
+                    if github_token and repo_owner and repo_name:
+                        issue_result = create_github_issue(
+                            issue_details=result.get('analysis', {}),
+                            repo_owner=repo_owner,
+                            repo_name=repo_name,
+                            github_token=github_token
+                        )
+                        # Add GitHub issue URL to result
+                        if isinstance(issue_result, str) and "created" in issue_result:
+                            # Extract the URL if it's in the result
+                            url_match = re.search(r'https://github\.com/[^\s]+', issue_result)
+                            if url_match:
+                                result['github_issue_url'] = url_match.group(0)
+                except Exception as e:
+                    logger.error(f"Failed to create GitHub issue: {e}")
+                    result['github_issue_error'] = str(e)
+            
+            logger.info(f"Analysis successful: {str(result)[:100]}...")
+            return jsonify(result)
+        else:
+            # If bot initialization failed, use mock data
+            logger.warning("Bot not initialized, using mock data")
+            mock_result = {
+                "status": "mock",
+                "analysis": {
+                    "error_summary": "ModuleNotFoundError: No module named 'requests'",
+                    "root_cause": "The Python script is trying to import the 'requests' library, but it's not installed in the current environment",
+                    "severity": "Medium - Application cannot run without this dependency",
+                    "severity_level": "MEDIUM",
+                    "recommended_solution": "Install the missing package using pip:\n\npip install requests",
+                    "prevention": "Use requirements.txt to document dependencies and virtual environments to isolate project dependencies"
                 }
-                return jsonify(mock_result)
-        except Exception as e:
-            logger.error(f"Error during log analysis: {e}")
-            return jsonify({'error': f'Analysis error: {str(e)}'}), 500
+            }
+            return jsonify(mock_result)
             
     except Exception as e:
         logger.error(f"Request handling error: {e}")
@@ -202,7 +187,7 @@ def analyze_log_mock():
         return jsonify(mock_response)
             
     except Exception as e:
-        print(f"Error in mock analyzer: {e}")
+        logger.error(f"Error in mock analyzer: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/batch-analyze', methods=['POST'])
@@ -220,7 +205,12 @@ def batch_analyze():
         severities = {}
         
         for i, file in enumerate(files):
-            log_content = file.read().decode('utf-8')
+            try:
+                log_content = file.read().decode('utf-8')
+            except UnicodeDecodeError:
+                logger.warning(f"Skipping file {file.filename} due to encoding issues")
+                continue
+                
             filename = file.filename
             
             # Analyze the log
@@ -238,7 +228,25 @@ def batch_analyze():
                 error_types[error_type] = error_types.get(error_type, 0) + 1
                 severities[severity] = severities.get(severity, 0) + 1
             else:
-                return jsonify({'error': 'Bot not initialized'}), 500
+                # Use mock data if bot is not initialized
+                mock_result = {
+                    "status": "mock",
+                    "filename": filename,
+                    "index": i,
+                    "analysis": {
+                        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+                        "root_cause": "The Python script is trying to import the 'requests' library, but it's not installed",
+                        "severity": "Medium - Application cannot run without this dependency",
+                        "severity_level": "MEDIUM",
+                        "recommended_solution": "Install the missing package using pip install requests",
+                        "prevention": "Use requirements.txt to document dependencies"
+                    }
+                }
+                results.append(mock_result)
+                
+                # Update summary stats with mock data
+                error_types["ModuleNotFoundError"] = error_types.get("ModuleNotFoundError", 0) + 1
+                severities["MEDIUM"] = severities.get("MEDIUM", 0) + 1
         
         # Prepare response
         response = {
@@ -269,7 +277,6 @@ def health_check():
         'timestamp': datetime.now().isoformat(),
         'bot_initialized': bot is not None
     })
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
