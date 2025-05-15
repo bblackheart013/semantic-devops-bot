@@ -278,19 +278,28 @@ class DevOpsBot:
         """Analyze a log file using the analyzer agent directly."""
         print("\n🔍 Starting log analysis...")
         self.logger.info("Starting log analysis")
-        
-        # Use the analyzer agent directly
-        print("⏳ Simulating log analysis with dummy result...")
-        analysis_result = {
-            "error_summary": "ModuleNotFoundError: No module named 'requests'",
-            "root_cause": "Missing 'requests' package in Python environment",
-            "severity": "MEDIUM",
-            "recommended_solution": "Install the package using `pip install requests`",
-            "prevention": "Include 'requests' in your requirements.txt"
-        }
-        print(f"\n📦 ANALYSIS RESULT: {json.dumps(analysis_result, indent=2)}")
+        # Use the coordinator to detect error type
+        error_type, confidence = self.coordinator.detect_error_type(log_content)
+        print(f"🔍 Detected error type: {error_type} (confidence: {confidence:.2f})")
 
+        # Get context and route to specialist
+        context = self.coordinator.get_log_context(log_content)
+        specialist_response = self.coordinator.route_to_specialist(error_type, log_content, context)
 
+        # Get the analysis from the response
+        if specialist_response and "response" in specialist_response:
+            analysis_result = specialist_response["response"]
+            # Add confidence score
+            analysis_result["detection_confidence"] = confidence
+        else:
+            # Fallback if no response
+            analysis_result = {
+                "error_summary": f"Analysis failed for {error_type}",
+                "root_cause": "Unable to get specialist analysis",
+                "severity": "UNKNOWN",
+                "recommended_solution": "Check logs for errors",
+                "prevention": "Ensure all specialist agents are registered"
+            }
         
         # Print the final analysis response
         print("\n📌 Final Analysis Response:")
