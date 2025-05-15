@@ -28,10 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: 🐍 Set up Python 3.11
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip'
@@ -46,12 +46,14 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        echo "GITHUB_TOKEN=${{ secrets.PERSONAL_GITHUB_TOKEN }}" >> $GITHUB_ENV
-        echo "GITHUB_REPO_OWNER=bblackheart013" >> $GITHUB_ENV
-        echo "GITHUB_REPO_NAME=semantic-devops-bot" >> $GITHUB_ENV
-        if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-        fi
+        {
+          echo "GITHUB_TOKEN=${{ secrets.PERSONAL_GITHUB_TOKEN }}"
+          echo "GITHUB_REPO_OWNER=bblackheart013"
+          echo "GITHUB_REPO_NAME=semantic-devops-bot"
+          if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+          fi
+        } >> "$GITHUB_ENV"
         
     - name: 🔍 Validate configuration
       run: |
@@ -66,61 +68,69 @@ jobs:
         LOG_DIR="${{ github.event.inputs.log_directory || 'sample_logs' }}"
         CREATE_ISSUES="${{ github.event.inputs.create_issues || 'true' }}"
         
-        ARGS="--dir $LOG_DIR --parallel"
+        # Define arguments without escaping quotes
+        ARGS=( --dir "$LOG_DIR" --parallel )
         if [ "$CREATE_ISSUES" = "true" ]; then
-          ARGS="$ARGS --create-issues"
+          ARGS+=( --create-issues )
         fi
         
-        echo "Running with args: $ARGS"
+        echo "Running with args: ${ARGS[*]}"
         # Create reports directory before running the script to ensure it exists
         mkdir -p reports
-        python batch_log_analyzer.py $ARGS
+        python batch_log_analyzer.py "${ARGS[@]}"
         
     - name: 📊 Generate analysis summary
       run: |
-        echo "## 🚀 Log Analysis Results" > summary.md
-        echo "- **Date:** $(date)" >> summary.md
-        echo "- **Analyzed by:** Semantic DevOps Bot" >> summary.md
-        echo "" >> summary.md
+        {
+          echo "## 🚀 Log Analysis Results"
+          echo "- **Date:** $(date)"
+          echo "- **Analyzed by:** Semantic DevOps Bot"
+          echo ""
+        } > summary.md
         
         # Check if reports directory exists and has any reports
         if [ -d "reports" ]; then
-          # Try to find the latest report
-          LATEST_REPORT=$(ls -t reports/batch_analysis_report_*.json 2>/dev/null | head -1 || echo "")
+          # Try to find the latest report using find instead of ls
+          LATEST_REPORT=$(find reports -name "batch_analysis_report_*.json" -type f -printf "%T@ %p\n" 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2- || echo "")
           
           if [ -f "$LATEST_REPORT" ]; then
             echo "Latest report: $LATEST_REPORT"
-            echo "### 📝 Analysis Summary" >> summary.md
+            {
+              echo "### 📝 Analysis Summary"
+              echo "| Metric | Value |"
+              echo "| ------ | ----- |"
+              echo "| Files Analyzed | $(jq '.total_files' "$LATEST_REPORT") |"
+              echo "| Success Rate | $(jq '.success_rate * 100' "$LATEST_REPORT")% |"
+              echo "| Processing Time | $(jq '.total_processing_time_seconds' "$LATEST_REPORT") seconds |"
+              echo ""
+              echo "### 🛑 Errors Found"
+              echo "| Error Type | Count |"
+              echo "| ---------- | ----- |"
+            } >> summary.md
             
-            # Extract key metrics using jq (pre-installed on GitHub runners)
-            echo "| Metric | Value |" >> summary.md
-            echo "| ------ | ----- |" >> summary.md
-            echo "| Files Analyzed | $(jq '.total_files' $LATEST_REPORT) |" >> summary.md
-            echo "| Success Rate | $(jq '.success_rate * 100' $LATEST_REPORT)% |" >> summary.md
-            echo "| Processing Time | $(jq '.total_processing_time_seconds' $LATEST_REPORT) seconds |" >> summary.md
-            
-            # List errors found
-            echo "" >> summary.md
-            echo "### 🛑 Errors Found" >> summary.md
-            echo "| Error Type | Count |" >> summary.md
-            echo "| ---------- | ----- |" >> summary.md
-            jq -r '.error_types | to_entries[] | "| \(.key) | \(.value) |"' $LATEST_REPORT >> summary.md
+            jq -r '.error_types | to_entries[] | "| \(.key) | \(.value) |"' "$LATEST_REPORT" >> summary.md
             
             # List created issues if any
-            if jq -e '.results[0].github_issue_url' $LATEST_REPORT &>/dev/null; then
-              echo "" >> summary.md
-              echo "### 🔗 GitHub Issues Created" >> summary.md
-              echo "| File | Issue URL |" >> summary.md
-              echo "| ---- | --------- |" >> summary.md
-              jq -r '.results[] | select(.github_issue_url != null) | "| \(.file_name) | [\(.error_type)](\(.github_issue_url)) |"' $LATEST_REPORT >> summary.md || true
+            if jq -e '.results[0].github_issue_url' "$LATEST_REPORT" &>/dev/null; then
+              {
+                echo ""
+                echo "### 🔗 GitHub Issues Created"
+                echo "| File | Issue URL |"
+                echo "| ---- | --------- |"
+              } >> summary.md
+              jq -r '.results[] | select(.github_issue_url != null) | "| \(.file_name) | [\(.error_type)](\(.github_issue_url)) |"' "$LATEST_REPORT" >> summary.md || true
             fi
           else
-            echo "### ⚠️ No Analysis Available" >> summary.md
-            echo "No report files were found in the reports directory." >> summary.md
+            {
+              echo "### ⚠️ No Analysis Available"
+              echo "No report files were found in the reports directory."
+            } >> summary.md
           fi
         else
-          echo "### ⚠️ No Analysis Available" >> summary.md
-          echo "The reports directory does not exist." >> summary.md
+          {
+            echo "### ⚠️ No Analysis Available"
+            echo "The reports directory does not exist."
+          } >> summary.md
           # Create an empty reports directory to prevent the upload step from failing
           mkdir -p reports
         fi
@@ -130,20 +140,20 @@ jobs:
     - name: 📁 Debug file existence
       run: |
         echo "Listing reports directory:"
-        ls -lh reports/ 2>/dev/null || echo "❌ reports/ directory not found"
+        find reports -type f -ls 2>/dev/null || echo "❌ reports/ directory not found"
         echo "Checking summary.md:"
         cat summary.md 2>/dev/null || echo "❌ summary.md not found"
     
     - name: 🧪 Debug report output
       run: |
         echo "📁 Checking reports/ directory:"
-        ls -lah reports || echo "❌ reports directory missing"
+        find reports -type f -ls || echo "❌ reports directory missing"
         echo ""
         echo "📄 Checking summary.md:"
         cat summary.md || echo "❌ summary.md missing"
 
     - name: 📤 Upload Analysis Report
-    uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v3.1.3
       with:
         name: log-analysis-report-${{ github.run_id }}
         path: |
