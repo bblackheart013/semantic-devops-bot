@@ -1,0 +1,123 @@
+{
+  "status": "success",
+  "timestamp": "2025-05-15T18:46:56.673862",
+  "directory": "sample_logs",
+  "recursive": false,
+  "parallel_processing": false,
+  "total_files": 6,
+  "successful": 6,
+  "failed": 0,
+  "success_rate": 1.0,
+  "total_processing_time_seconds": 6.582088947296143,
+  "average_processing_time_seconds": 1.0970148245493572,
+  "error_types": {
+    "ModuleNotFoundError: No module named 'requests'": 6
+  },
+  "severities": {
+    "MEDIUM": 6
+  },
+  "results": [
+    {
+      "file_path": "sample_logs/log_1.log",
+      "file_name": "log_1.log",
+      "status": "success",
+      "timestamp": "2025-05-15T18:46:50.091728",
+      "file_size_bytes": 68,
+      "analysis": {
+        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+        "root_cause": "Missing 'requests' package in Python environment",
+        "severity": "MEDIUM",
+        "recommended_solution": "Install the package using `pip install requests`",
+        "prevention": "Include 'requests' in your requirements.txt"
+      },
+      "severity": "MEDIUM",
+      "error_type": "ModuleNotFoundError: No module named 'requests'",
+      "processing_time_seconds": 1.3594648838043213
+    },
+    {
+      "file_path": "sample_logs/log_3.log",
+      "file_name": "log_3.log",
+      "status": "success",
+      "timestamp": "2025-05-15T18:46:51.451564",
+      "file_size_bytes": 66,
+      "analysis": {
+        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+        "root_cause": "Missing 'requests' package in Python environment",
+        "severity": "MEDIUM",
+        "recommended_solution": "Install the package using `pip install requests`",
+        "prevention": "Include 'requests' in your requirements.txt"
+      },
+      "severity": "MEDIUM",
+      "error_type": "ModuleNotFoundError: No module named 'requests'",
+      "processing_time_seconds": 1.1266212463378906
+    },
+    {
+      "file_path": "sample_logs/log_2.log",
+      "file_name": "log_2.log",
+      "status": "success",
+      "timestamp": "2025-05-15T18:46:52.578682",
+      "file_size_bytes": 70,
+      "analysis": {
+        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+        "root_cause": "Missing 'requests' package in Python environment",
+        "severity": "MEDIUM",
+        "recommended_solution": "Install the package using `pip install requests`",
+        "prevention": "Include 'requests' in your requirements.txt"
+      },
+      "severity": "MEDIUM",
+      "error_type": "ModuleNotFoundError: No module named 'requests'",
+      "processing_time_seconds": 1.016050100326538
+    },
+    {
+      "file_path": "sample_logs/log_deployment_error.log",
+      "file_name": "log_deployment_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T18:46:53.595220",
+      "file_size_bytes": 106,
+      "analysis": {
+        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+        "root_cause": "Missing 'requests' package in Python environment",
+        "severity": "MEDIUM",
+        "recommended_solution": "Install the package using `pip install requests`",
+        "prevention": "Include 'requests' in your requirements.txt"
+      },
+      "severity": "MEDIUM",
+      "error_type": "ModuleNotFoundError: No module named 'requests'",
+      "processing_time_seconds": 1.0322840213775635
+    },
+    {
+      "file_path": "sample_logs/log_azure_error.log",
+      "file_name": "log_azure_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T18:46:54.627969",
+      "file_size_bytes": 80,
+      "analysis": {
+        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+        "root_cause": "Missing 'requests' package in Python environment",
+        "severity": "MEDIUM",
+        "recommended_solution": "Install the package using `pip install requests`",
+        "prevention": "Include 'requests' in your requirements.txt"
+      },
+      "severity": "MEDIUM",
+      "error_type": "ModuleNotFoundError: No module named 'requests'",
+      "processing_time_seconds": 0.9880218505859375
+    },
+    {
+      "file_path": "sample_logs/log_build_error.log",
+      "file_name": "log_build_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T18:46:55.616426",
+      "file_size_bytes": 141,
+      "analysis": {
+        "error_summary": "ModuleNotFoundError: No module named 'requests'",
+        "root_cause": "Missing 'requests' package in Python environment",
+        "severity": "MEDIUM",
+        "recommended_solution": "Install the package using `pip install requests`",
+        "prevention": "Include 'requests' in your requirements.txt"
+      },
+      "severity": "MEDIUM",
+      "error_type": "ModuleNotFoundError: No module named 'requests'",
+      "processing_time_seconds": 1.0569379329681396
+    }
+  ]
+}

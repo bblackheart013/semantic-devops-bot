@@ -422,7 +422,14 @@ class CoordinatorAgent(ConversableAgent):
                 "status": "dry_run",
                 "specialist": self.specialist_agents[error_type].name,
                 "error_type": error_type,
-                "response": f"[DRY RUN] This is a simulated response for {error_type} specialist",
+                "response": {
+                    "error_summary": f"[DRY RUN] Sample analysis for {error_type}",
+                    "root_cause": "This is a simulated response",
+                    "severity": "MEDIUM",
+                    "severity_level": "MEDIUM",
+                    "recommended_solution": "No real solution - this is a simulation",
+                    "prevention": "No real prevention - this is a simulation"
+                },
                 "response_time": 0.1  # Simulated response time
             }
         
@@ -454,11 +461,16 @@ class CoordinatorAgent(ConversableAgent):
                     self.logger.info(f"Final retry: using general_error specialist")
                     print(f"🔁 Final retry: Using general_error specialist")
                 elif available_specialists:
-                    # Try another random specialist with cryptographic-quality randomness
-                    fallback_type = secrets.choice(list(available_specialists.keys()))
-                    specialist = available_specialists[fallback_type]
-                    self.logger.info(f"Retry {retry_count}: trying {fallback_type} specialist: {specialist.name}")
-                    print(f"🔁 Retry {retry_count}: Trying {fallback_type} specialist ({specialist.name})")
+                    # Try another specialist
+                    fallback_types = list(available_specialists.keys())
+                    fallback_type = fallback_types[0] if fallback_types else None
+                    if fallback_type:
+                        specialist = available_specialists[fallback_type]
+                        self.logger.info(f"Retry {retry_count}: trying {fallback_type} specialist: {specialist.name}")
+                        print(f"🔁 Retry {retry_count}: Trying {fallback_type} specialist ({specialist.name})")
+                    else:
+                        # No more specialists to try
+                        break
                 else:
                     # No more specialists to try
                     break
@@ -471,44 +483,30 @@ class CoordinatorAgent(ConversableAgent):
                 # Record start time for performance tracking
                 start_time = time.time()
                 
-                # Initialize a chat with the specialist
+                # Create conversation message structure for the specialist
+                messages = [{"role": "user", "content": enhanced_message}]
+                
+                # Initialize a chat with the specialist - FIXED to use messages parameter
                 try:
-                    response = specialist.generate_reply(sender=self, message=enhanced_message)
-                except Exception as e:
-                    # Check if it's an OpenAI error we can handle with model fallback
-                    if OPENAI_AVAILABLE and isinstance(e, (RateLimitError, APIError, ServiceUnavailableError)):
-                        self.logger.warning(f"OpenAI API error: {e}. Attempting model fallback...")
-                        print(f"⚠️ OpenAI API error: {str(e)[:100]}... Attempting fallback model")
-                        
-                        # Try to fallback to next model in config list
-                        if hasattr(specialist, 'llm_config') and 'config_list' in specialist.llm_config:
-                            config_list = specialist.llm_config['config_list']
-                            
-                            # If we have multiple models in the config list
-                            if len(config_list) > 1 and current_model_index < len(config_list) - 1:
-                                current_model_index += 1
-                                model_info = config_list[current_model_index]
-                                self.logger.info(f"Falling back to model: {model_info.get('model', 'unknown')}")
-                                print(f"🔄 Falling back to model: {model_info.get('model', 'unknown')}")
-                                
-                                # Create temporary config with just this model
-                                temp_config = specialist.llm_config.copy()
-                                temp_config["config_list"] = [model_info]
-                                
-                                # Try again with new model
-                                response = specialist.generate_reply(
-                                    sender=self, 
-                                    message=enhanced_message
-                                )
-                            else:
-                                # No more models to try
-                                raise
-                        else:
-                            # No config_list available
-                            raise
+                    response = specialist.generate_reply(messages=messages)
+                    
+                    # Ensure response is a dictionary
+                    if isinstance(response, str):
+                        # Convert string response to dictionary
+                        response_dict = {
+                            "error_summary": "Analysis summary",
+                            "root_cause": response[:200],  # Use first part of response as root cause
+                            "severity": "MEDIUM",
+                            "severity_level": "MEDIUM",
+                            "recommended_solution": response[200:400] if len(response) > 200 else "Not specified",
+                            "prevention": "Not specified"
+                        }
                     else:
-                        # Not an OpenAI error or no OpenAI integration available
-                        raise
+                        response_dict = response
+                    
+                except Exception as e:
+                    # Not worth trying to handle model fallback if basic messaging fails
+                    raise
                 
                 # Calculate and record response time
                 elapsed_time = time.time() - start_time
@@ -528,7 +526,7 @@ class CoordinatorAgent(ConversableAgent):
                     "status": "routed",
                     "specialist": specialist.name,
                     "error_type": error_type,
-                    "response": response,
+                    "response": response_dict,
                     "response_time": elapsed_time
                 }
                 

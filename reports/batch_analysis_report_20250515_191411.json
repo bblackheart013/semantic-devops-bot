@@ -1,0 +1,126 @@
+{
+  "status": "success",
+  "timestamp": "2025-05-15T19:14:11.612083",
+  "directory": "sample_logs",
+  "recursive": false,
+  "parallel_processing": false,
+  "total_files": 6,
+  "successful": 6,
+  "failed": 0,
+  "success_rate": 1.0,
+  "total_processing_time_seconds": 6.737864017486572,
+  "average_processing_time_seconds": 1.122977336247762,
+  "error_types": {
+    "Analysis failed for build_error": 2,
+    "Analysis failed for azure_error": 2,
+    "Analysis failed for general_error": 1,
+    "Analysis failed for deployment_error": 1
+  },
+  "severities": {
+    "UNKNOWN": 6
+  },
+  "results": [
+    {
+      "file_path": "sample_logs/log_1.log",
+      "file_name": "log_1.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:14:04.874192",
+      "file_size_bytes": 68,
+      "analysis": {
+        "error_summary": "Analysis failed for build_error",
+        "root_cause": "Unable to get specialist analysis",
+        "severity": "UNKNOWN",
+        "recommended_solution": "Check logs for errors",
+        "prevention": "Ensure all specialist agents are registered"
+      },
+      "severity": "UNKNOWN",
+      "error_type": "Analysis failed for build_error",
+      "processing_time_seconds": 1.5248448848724365
+    },
+    {
+      "file_path": "sample_logs/log_3.log",
+      "file_name": "log_3.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:14:06.399127",
+      "file_size_bytes": 66,
+      "analysis": {
+        "error_summary": "Analysis failed for azure_error",
+        "root_cause": "Unable to get specialist analysis",
+        "severity": "UNKNOWN",
+        "recommended_solution": "Check logs for errors",
+        "prevention": "Ensure all specialist agents are registered"
+      },
+      "severity": "UNKNOWN",
+      "error_type": "Analysis failed for azure_error",
+      "processing_time_seconds": 1.0145211219787598
+    },
+    {
+      "file_path": "sample_logs/log_2.log",
+      "file_name": "log_2.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:14:07.414065",
+      "file_size_bytes": 70,
+      "analysis": {
+        "error_summary": "Analysis failed for general_error",
+        "root_cause": "Unable to get specialist analysis",
+        "severity": "UNKNOWN",
+        "recommended_solution": "Check logs for errors",
+        "prevention": "Ensure all specialist agents are registered"
+      },
+      "severity": "UNKNOWN",
+      "error_type": "Analysis failed for general_error",
+      "processing_time_seconds": 1.0307762622833252
+    },
+    {
+      "file_path": "sample_logs/log_deployment_error.log",
+      "file_name": "log_deployment_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:14:08.445133",
+      "file_size_bytes": 106,
+      "analysis": {
+        "error_summary": "Analysis failed for deployment_error",
+        "root_cause": "Unable to get specialist analysis",
+        "severity": "UNKNOWN",
+        "recommended_solution": "Check logs for errors",
+        "prevention": "Ensure all specialist agents are registered"
+      },
+      "severity": "UNKNOWN",
+      "error_type": "Analysis failed for deployment_error",
+      "processing_time_seconds": 1.0189461708068848
+    },
+    {
+      "file_path": "sample_logs/log_azure_error.log",
+      "file_name": "log_azure_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:14:09.464536",
+      "file_size_bytes": 80,
+      "analysis": {
+        "error_summary": "Analysis failed for azure_error",
+        "root_cause": "Unable to get specialist analysis",
+        "severity": "UNKNOWN",
+        "recommended_solution": "Check logs for errors",
+        "prevention": "Ensure all specialist agents are registered"
+      },
+      "severity": "UNKNOWN",
+      "error_type": "Analysis failed for azure_error",
+      "processing_time_seconds": 1.0107982158660889
+    },
+    {
+      "file_path": "sample_logs/log_build_error.log",
+      "file_name": "log_build_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:14:10.475500",
+      "file_size_bytes": 141,
+      "analysis": {
+        "error_summary": "Analysis failed for build_error",
+        "root_cause": "Unable to get specialist analysis",
+        "severity": "UNKNOWN",
+        "recommended_solution": "Check logs for errors",
+        "prevention": "Ensure all specialist agents are registered"
+      },
+      "severity": "UNKNOWN",
+      "error_type": "Analysis failed for build_error",
+      "processing_time_seconds": 1.1362030506134033
+    }
+  ]
+}

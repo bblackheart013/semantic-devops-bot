@@ -1,0 +1,135 @@
+{
+  "status": "success",
+  "timestamp": "2025-05-15T19:33:52.647578",
+  "directory": "sample_logs",
+  "recursive": false,
+  "parallel_processing": true,
+  "total_files": 6,
+  "successful": 6,
+  "failed": 0,
+  "success_rate": 1.0,
+  "total_processing_time_seconds": 21.565447330474854,
+  "average_processing_time_seconds": 3.594241221745809,
+  "error_types": {
+    "Analysis summary": 6
+  },
+  "severities": {
+    "MEDIUM": 6
+  },
+  "results": [
+    {
+      "file_path": "sample_logs/log_deployment_error.log",
+      "file_name": "log_deployment_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:33:31.082468",
+      "file_size_bytes": 106,
+      "analysis": {
+        "error_summary": "Analysis summary",
+        "root_cause": "To resolve the issue of the Docker container failing to start due to missing environment variables in the staging environment, follow these steps:\n\n1. **Identify Missing Environment Variables**:\n   - ",
+        "severity": "MEDIUM",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "Check the Dockerfile or the Docker Compose file (if used) to identify which environment variables are required for the container to start.\n   - Review any application configuration files or documentat",
+        "prevention": "Not specified",
+        "detection_confidence": 6.0
+      },
+      "severity": "MEDIUM",
+      "error_type": "Analysis summary",
+      "processing_time_seconds": 9.593683958053589
+    },
+    {
+      "file_path": "sample_logs/log_3.log",
+      "file_name": "log_3.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:33:31.082219",
+      "file_size_bytes": 66,
+      "analysis": {
+        "error_summary": "Analysis summary",
+        "root_cause": "The error message \"AzureVMError: insufficient quota to provision requested resources\" indicates that the Azure subscription has reached its quota limit for a specific resource type, preventing the pro",
+        "severity": "MEDIUM",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "visioning of additional resources. Here are some steps and recommendations to address this issue:\n\n1. **Check Current Quota Usage:**\n   - Navigate to the Azure Portal and check the current quota usage",
+        "prevention": "Not specified",
+        "detection_confidence": 5.0
+      },
+      "severity": "MEDIUM",
+      "error_type": "Analysis summary",
+      "processing_time_seconds": 10.637643098831177
+    },
+    {
+      "file_path": "sample_logs/log_2.log",
+      "file_name": "log_2.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:33:31.082373",
+      "file_size_bytes": 70,
+      "analysis": {
+        "error_summary": "Analysis summary",
+        "root_cause": "The error you're encountering, `DeploymentError: failed to connect to staging environment on port 443`, suggests a problem with establishing a secure connection to your staging environment. This is no",
+        "severity": "MEDIUM",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "t directly related to a build tool like npm, yarn, maven, or gradle, but rather a deployment or network configuration issue. Here are some steps to troubleshoot and resolve this problem:\n\n1. **Network",
+        "prevention": "Not specified",
+        "detection_confidence": 0.6
+      },
+      "severity": "MEDIUM",
+      "error_type": "Analysis summary",
+      "processing_time_seconds": 10.916249752044678
+    },
+    {
+      "file_path": "sample_logs/log_1.log",
+      "file_name": "log_1.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:33:31.082104",
+      "file_size_bytes": 68,
+      "analysis": {
+        "error_summary": "Analysis summary",
+        "root_cause": "The error message you're encountering, `error C2109: subscript requires array or pointer type`, is a compilation error typically seen in C or C++ projects. This error occurs when you attempt to use th",
+        "severity": "MEDIUM",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "e subscript operator `[]` on a variable that is not an array or a pointer.\n\nHere are some steps to help you resolve this issue:\n\n1. **Identify the Line of Code**: Check the build log for the specific ",
+        "prevention": "Not specified",
+        "detection_confidence": 1.0
+      },
+      "severity": "MEDIUM",
+      "error_type": "Analysis summary",
+      "processing_time_seconds": 12.086620807647705
+    },
+    {
+      "file_path": "sample_logs/log_azure_error.log",
+      "file_name": "log_azure_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:33:40.676605",
+      "file_size_bytes": 80,
+      "analysis": {
+        "error_summary": "Analysis summary",
+        "root_cause": "The error log indicates that the deployment to Azure App Service failed because the specified Azure Resource Group, \"my-dev-rg,\" was not found. Here are some steps and considerations to address this i",
+        "severity": "MEDIUM",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "ssue:\n\n1. **Verify Resource Group Existence**:\n   - Ensure that the resource group \"my-dev-rg\" actually exists in your Azure subscription. You can do this by checking the Azure Portal or using Azure C",
+        "prevention": "Not specified",
+        "detection_confidence": 8.0
+      },
+      "severity": "MEDIUM",
+      "error_type": "Analysis summary",
+      "processing_time_seconds": 10.384697914123535
+    },
+    {
+      "file_path": "sample_logs/log_build_error.log",
+      "file_name": "log_build_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T19:33:41.720305",
+      "file_size_bytes": 141,
+      "analysis": {
+        "error_summary": "Analysis summary",
+        "root_cause": "The error you're encountering is a `ModuleNotFoundError` for the Python module `requests`. This indicates that the `requests` library is not installed in your current Python environment. Here are the ",
+        "severity": "MEDIUM",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "steps you can take to resolve this issue:\n\n1. **Install the `requests` Module:**\n   - Run the following command in your terminal or command prompt to install the `requests` library:\n     ```bash\n     ",
+        "prevention": "Not specified",
+        "detection_confidence": 8.0
+      },
+      "severity": "MEDIUM",
+      "error_type": "Analysis summary",
+      "processing_time_seconds": 10.926054954528809
+    }
+  ]
+}
