@@ -273,8 +273,6 @@ class DevOpsBot:
             "repo_name": "your-repo"
         }
     }
-    
-<<<<<<< HEAD
     def analyze_log(self, log_content):
         """Analyze a log file using the analyzer agent directly."""
         print("\n🔍 Starting log analysis...")
