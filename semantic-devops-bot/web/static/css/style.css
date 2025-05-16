@@ -1,0 +1,20 @@
+/* Custom styles that will work alongside Tailwind */
+.code-block {
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  white-space: pre-wrap;
+  font-size: 0.875rem;
+  color: #212529;
+  border-left: 4px solid #1e3a8a; /* Darker blue */
+}
+
+/* Dark mode code blocks */
+.dark .code-block {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-left-color: #3b82f6;
+}

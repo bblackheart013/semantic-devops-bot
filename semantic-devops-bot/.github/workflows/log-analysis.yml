@@ -1,0 +1,172 @@
+name: 🚀 Semantic DevOps Log Analysis
+on:
+  push:
+    paths:
+      - 'sample_logs/**'
+      - 'logs/*.log'
+      - 'batch_log_analyzer.py'
+      - 'main.py'
+      - 'agents/**'
+      - 'tools/**'
+      - '.github/workflows/log-analysis.yml'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      log_directory:
+        description: 'Directory containing logs to analyze'
+        required: false
+        default: 'sample_logs'
+      create_issues:
+        description: 'Create GitHub issues for errors'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  analyze-logs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: 🐍 Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install colorama PyGithub python-dotenv
+        
+    - name: 🔐 Set up environment variables
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        echo "GITHUB_TOKEN=${{ secrets.PERSONAL_GITHUB_TOKEN }}" >> $GITHUB_ENV
+        echo "GITHUB_REPO_OWNER=bblackheart013" >> $GITHUB_ENV
+        echo "GITHUB_REPO_NAME=semantic-devops-bot" >> $GITHUB_ENV
+        if [ -n "${{ secrets.OPENAI_API_KEY }}" ]; then
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+        fi
+        
+    - name: 🔍 Validate configuration
+      run: |
+        echo "🔎 ENV DEBUG:"
+        echo "GITHUB_TOKEN: ${GITHUB_TOKEN:0:4}...${GITHUB_TOKEN: -4}"
+        echo "GITHUB_REPO_OWNER: $GITHUB_REPO_OWNER"
+        echo "GITHUB_REPO_NAME: $GITHUB_REPO_NAME"
+        [ -f "config.json" ] && echo "✅ config.json found" || echo "⚠️ config.json not found"
+        
+    - name: 🧠 Run Batch Log Analyzer
+      run: |
+        LOG_DIR="${{ github.event.inputs.log_directory || 'sample_logs' }}"
+        CREATE_ISSUES="${{ github.event.inputs.create_issues || 'true' }}"
+        
+        ARGS="--dir $LOG_DIR --parallel"
+        if [ "$CREATE_ISSUES" = "true" ]; then
+          ARGS="$ARGS --create-issues"
+        fi
+        
+        echo "Running with args: $ARGS"
+        # Create reports directory before running the script to ensure it exists
+        mkdir -p reports
+        python batch_log_analyzer.py $ARGS
+        
+    - name: 📊 Generate analysis summary
+      run: |
+        echo "## 🚀 Log Analysis Results" > summary.md
+        echo "- **Date:** $(date)" >> summary.md
+        echo "- **Analyzed by:** Semantic DevOps Bot" >> summary.md
+        echo "" >> summary.md
+        
+        # Check if reports directory exists and has any reports
+        if [ -d "reports" ]; then
+          # Try to find the latest report
+          LATEST_REPORT=$(ls -t reports/batch_analysis_report_*.json 2>/dev/null | head -1 || echo "")
+          
+          if [ -f "$LATEST_REPORT" ]; then
+            echo "Latest report: $LATEST_REPORT"
+            echo "### 📝 Analysis Summary" >> summary.md
+            
+            # Extract key metrics using jq (pre-installed on GitHub runners)
+            echo "| Metric | Value |" >> summary.md
+            echo "| ------ | ----- |" >> summary.md
+            echo "| Files Analyzed | $(jq '.total_files' $LATEST_REPORT) |" >> summary.md
+            echo "| Success Rate | $(jq '.success_rate * 100' $LATEST_REPORT)% |" >> summary.md
+            echo "| Processing Time | $(jq '.total_processing_time_seconds' $LATEST_REPORT) seconds |" >> summary.md
+            
+            # List errors found
+            echo "" >> summary.md
+            echo "### 🛑 Errors Found" >> summary.md
+            echo "| Error Type | Count |" >> summary.md
+            echo "| ---------- | ----- |" >> summary.md
+            jq -r '.error_types | to_entries[] | "| \(.key) | \(.value) |"' $LATEST_REPORT >> summary.md
+            
+            # List created issues if any
+            if jq -e '.results[0].github_issue_url' $LATEST_REPORT &>/dev/null; then
+              echo "" >> summary.md
+              echo "### 🔗 GitHub Issues Created" >> summary.md
+              echo "| File | Issue URL |" >> summary.md
+              echo "| ---- | --------- |" >> summary.md
+              jq -r '.results[] | select(.github_issue_url != null) | "| \(.file_name) | [\(.error_type)](\(.github_issue_url)) |"' $LATEST_REPORT >> summary.md || true
+            fi
+          else
+            echo "### ⚠️ No Analysis Available" >> summary.md
+            echo "No report files were found in the reports directory." >> summary.md
+          fi
+        else
+          echo "### ⚠️ No Analysis Available" >> summary.md
+          echo "The reports directory does not exist." >> summary.md
+          # Create an empty reports directory to prevent the upload step from failing
+          mkdir -p reports
+        fi
+        
+        cat summary.md
+    
+    - name: 📁 Debug file existence
+      run: |
+        echo "Listing reports directory:"
+        ls -lh reports/ 2>/dev/null || echo "❌ reports/ directory not found"
+        echo "Checking summary.md:"
+        cat summary.md 2>/dev/null || echo "❌ summary.md not found"
+    
+    - name: 🧪 Debug report output
+      run: |
+        echo "📁 Checking reports/ directory:"
+        ls -lah reports || echo "❌ reports directory missing"
+        echo ""
+        echo "📄 Checking summary.md:"
+        cat summary.md || echo "❌ summary.md missing"
+
+    - name: 📤 Upload Analysis Report
+    uses: actions/upload-artifact@v3.1.3
+      with:
+        name: log-analysis-report-${{ github.run_id }}
+        path: |
+          reports/*.json
+          summary.md
+        if-no-files-found: warn
+          
+    - name: 📝 Create PR Comment
+      if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: log-analysis
+        path: summary.md
+        
+    - name: 📨 Send Slack Notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+        text: |
+          📊 DevOps Log Analysis: ${{ job.status }}
+          See attached report for details. Check the GitHub workflow run for full results.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      continue-on-error: true

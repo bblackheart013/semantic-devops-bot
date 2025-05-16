@@ -1,0 +1,11 @@
+semantic-kernel
+PyGithub
+azure-identity
+azure-mgmt-resource
+flask==2.0.3
+flask-wtf==1.0.1
+flask-cors==3.0.10
+echo "gunicorn==20.1.0" >> requirements.txt
+echo "flask==2.0.3" >> requirements.txt
+echo "flask-wtf==1.0.1" >> requirements.txt
+echo "flask-cors==3.0.10" >> requirements.txt
