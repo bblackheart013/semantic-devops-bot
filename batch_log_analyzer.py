@@ -101,7 +101,13 @@ def process_log_file(file_path: str, bot: DevOpsBot, logger: logging.Logger) -> 
         analysis = bot.analyze_log(log_content)
         
         # Add analysis to result
-        result["analysis"] = analysis.get("analysis", {})
+        if analysis:
+            result["analysis"] = analysis.get("analysis", {})
+            result["messages"] = analysis.get("messages", [])
+        else:
+            result["analysis"] = {"error": "Analysis failed or returned None"}
+            result["messages"] = []
+
         result["severity"] = analysis.get("analysis", {}).get("severity", "UNKNOWN")
         result["error_type"] = analysis.get("analysis", {}).get("error_summary", "Unknown error")
         

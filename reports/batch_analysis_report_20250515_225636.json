@@ -1,0 +1,71 @@
+{
+  "status": "success",
+  "timestamp": "2025-05-15T22:56:36.463586",
+  "directory": "sample_logs",
+  "recursive": false,
+  "parallel_processing": true,
+  "total_files": 6,
+  "successful": 0,
+  "failed": 6,
+  "success_rate": 0.0,
+  "total_processing_time_seconds": 0.0024018287658691406,
+  "average_processing_time_seconds": 0.00040030479431152344,
+  "error_types": {},
+  "severities": {},
+  "results": [
+    {
+      "file_path": "sample_logs/log_3.log",
+      "file_name": "log_3.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:56:36.461424",
+      "file_size_bytes": 66,
+      "error_message": "'DevOpsBot' object has no attribute 'analyze_log'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 101, in process_log_file\n    analysis = bot.analyze_log(log_content)\n               ^^^^^^^^^^^^^^^\nAttributeError: 'DevOpsBot' object has no attribute 'analyze_log'\n"
+    },
+    {
+      "file_path": "sample_logs/log_1.log",
+      "file_name": "log_1.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:56:36.461275",
+      "file_size_bytes": 68,
+      "error_message": "'DevOpsBot' object has no attribute 'analyze_log'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 101, in process_log_file\n    analysis = bot.analyze_log(log_content)\n               ^^^^^^^^^^^^^^^\nAttributeError: 'DevOpsBot' object has no attribute 'analyze_log'\n"
+    },
+    {
+      "file_path": "sample_logs/log_2.log",
+      "file_name": "log_2.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:56:36.461536",
+      "file_size_bytes": 70,
+      "error_message": "'DevOpsBot' object has no attribute 'analyze_log'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 101, in process_log_file\n    analysis = bot.analyze_log(log_content)\n               ^^^^^^^^^^^^^^^\nAttributeError: 'DevOpsBot' object has no attribute 'analyze_log'\n"
+    },
+    {
+      "file_path": "sample_logs/log_deployment_error.log",
+      "file_name": "log_deployment_error.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:56:36.461697",
+      "file_size_bytes": 106,
+      "error_message": "'DevOpsBot' object has no attribute 'analyze_log'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 101, in process_log_file\n    analysis = bot.analyze_log(log_content)\n               ^^^^^^^^^^^^^^^\nAttributeError: 'DevOpsBot' object has no attribute 'analyze_log'\n"
+    },
+    {
+      "file_path": "sample_logs/log_azure_error.log",
+      "file_name": "log_azure_error.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:56:36.462538",
+      "file_size_bytes": 80,
+      "error_message": "'DevOpsBot' object has no attribute 'analyze_log'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 101, in process_log_file\n    analysis = bot.analyze_log(log_content)\n               ^^^^^^^^^^^^^^^\nAttributeError: 'DevOpsBot' object has no attribute 'analyze_log'\n"
+    },
+    {
+      "file_path": "sample_logs/log_build_error.log",
+      "file_name": "log_build_error.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:56:36.462765",
+      "file_size_bytes": 141,
+      "error_message": "'DevOpsBot' object has no attribute 'analyze_log'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 101, in process_log_file\n    analysis = bot.analyze_log(log_content)\n               ^^^^^^^^^^^^^^^\nAttributeError: 'DevOpsBot' object has no attribute 'analyze_log'\n"
+    }
+  ]
+}

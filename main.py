@@ -273,188 +273,158 @@ class DevOpsBot:
             "repo_name": "your-repo"
         }
     }
+
     def analyze_log(self, log_content):
-        """Analyze a log file using the analyzer agent directly."""
-        print("\n🔍 Starting log analysis...")
+        """
+        Analyze a log file using the analyzer agent directly.
+        
+        Args:
+            log_content: The error log content to analyze
+    >>>>>>> b89151a7fe5ec1b19534aed89d66958077045cbb
+            
+        Returns:
+            A dictionary with the analysis results
+        """
         self.logger.info("Starting log analysis")
-        # Use the coordinator to detect error type
-        error_type, confidence = self.coordinator.detect_error_type(log_content)
-        print(f"🔍 Detected error type: {error_type} (confidence: {confidence:.2f})")
-
-        # Get context and route to specialist
-        context = self.coordinator.get_log_context(log_content)
-        specialist_response = self.coordinator.route_to_specialist(error_type, log_content, context)
-
-        # Get the analysis from the response
-        if specialist_response and "response" in specialist_response:
-            analysis_result = specialist_response["response"]
-            # Add confidence score
-            analysis_result["detection_confidence"] = confidence
-        else:
-            # Fallback if no response
+        
+        try:
+            # If we have a valid analyzer, use it
+            if hasattr(self, 'analyzer') and self.analyzer:
+                # Detect the log type for better analysis
+                log_type = "unknown"
+                if "ModuleNotFoundError" in log_content or "ImportError" in log_content:
+                    log_type = "python"
+                elif "docker" in log_content.lower() or "container" in log_content.lower():
+                    log_type = "docker" 
+                elif "azure" in log_content.lower() or "resource group" in log_content.lower():
+                    log_type = "azure"
+                    
+                self.logger.info(f"Detected log type: {log_type}")
+                
+                # Use the analyzer agent
+                try:
+                    # Try to use the actual analyzer
+                    analysis_result = self.analyzer.analyze_log(log_content)
+                    self.logger.info("Analyzer agent returned analysis")
+                    
+                    # Return the analysis result with metadata
+                    return {
+                        "status": "success",
+                        "error_type": analysis_result.get("error_summary", "Unknown error").split(":")[0],
+                        "analysis": analysis_result,
+                        "source": "analyzer_agent"
+                    }
+                    
+                except Exception as e:
+                    self.logger.error(f"Error using analyzer agent: {e}")
+                    # Fall back to coordinator based routing
+                    pass
+                    
+            # Use coordinator-based routing if available
+            if hasattr(self, 'coordinator') and self.coordinator:
+                try:
+                    coord_result = self.coordinator.analyze_log(log_content)
+                    self.logger.info("Coordinator completed analysis")
+                    return coord_result
+                except Exception as e:
+                    self.logger.error(f"Error using coordinator: {e}")
+                    # Fall back to fallback option
+            
+            # Fallback to a simple pattern-based analysis
+            self.logger.warning("Using fallback pattern-based analysis")
+            
+            # Check for common error patterns
+            error_type = "unknown"
+            root_cause = "Could not determine root cause"
+            recommended_solution = "Please review the log for more details"
+            
+            if "ModuleNotFoundError: No module named 'requests'" in log_content:
+                error_type = "python_import_error"
+                error_summary = "ModuleNotFoundError: No module named 'requests'"
+                root_cause = "The Python script is trying to import the 'requests' library, but it's not installed in the current environment"
+                recommended_solution = "Install the missing package using pip:\n\npip install requests"
+                prevention = "Use requirements.txt to document dependencies and virtual environments to isolate project dependencies"
+                severity = "Medium - Application cannot run without this dependency"
+                severity_level = "MEDIUM"
+                
+            elif "pull access denied" in log_content and "repository does not exist" in log_content:
+                error_type = "docker_auth_error"
+                error_summary = "Docker pull access denied: repository does not exist or requires authentication"
+                root_cause = "Docker is unable to pull the specified image because it either does not exist or you don't have permission to access it"
+                recommended_solution = "1. Verify the image name is correct\n2. Use 'docker login' to authenticate with the registry\n3. Check that you have access to the repository"
+                prevention = "Use a CI/CD system with proper credential management for automated deployments"
+                severity = "High - Deployment is blocked until resolved"
+                severity_level = "HIGH"
+                
+            elif "DeploymentFailed" in log_content and "Resource group" in log_content and "could not be found" in log_content:
+                error_type = "azure_resource_error"
+                error_summary = "Azure Deployment Failed: Resource group not found"
+                root_cause = "The specified Azure resource group does not exist in the current subscription"
+                recommended_solution = "1. Verify the resource group name\n2. Check that you're using the correct Azure subscription\n3. Create the resource group if needed using 'az group create'"
+                prevention = "Use infrastructure as code tools like ARM templates or Terraform to manage resource groups"
+                severity = "Medium - Deployment cannot proceed"
+                severity_level = "MEDIUM"
+                
+            else:
+                # Generic error case
+                error_type = "unknown_error"
+                error_summary = log_content[:100] + ("..." if len(log_content) > 100 else "")
+                root_cause = "Could not determine the specific cause of this error"
+                recommended_solution = "Review the complete log for more context and details"
+                prevention = "Implement comprehensive logging and monitoring"
+                severity = "Medium - Unknown impact"
+                severity_level = "MEDIUM"
+                
             analysis_result = {
-                "error_summary": f"Analysis failed for {error_type}",
-                "root_cause": "Unable to get specialist analysis",
-                "severity": "UNKNOWN",
-                "recommended_solution": "Check logs for errors",
-                "prevention": "Ensure all specialist agents are registered"
+                "error_summary": error_summary,
+                "root_cause": root_cause,
+                "severity": severity,
+                "severity_level": severity_level,
+                "recommended_solution": recommended_solution,
+                "prevention": prevention
             }
-    """
-Enhanced analyze_log method for DevOpsBot class - 
-Replace the existing method in main.py with this implementation.
-"""
-
-def analyze_log(self, log_content):
-    """
-    Analyze a log file using the analyzer agent directly.
-    
-    Args:
-        log_content: The error log content to analyze
->>>>>>> b89151a7fe5ec1b19534aed89d66958077045cbb
-        
-    Returns:
-        A dictionary with the analysis results
-    """
-    self.logger.info("Starting log analysis")
-    
-    try:
-        # If we have a valid analyzer, use it
-        if hasattr(self, 'analyzer') and self.analyzer:
-            # Detect the log type for better analysis
-            log_type = "unknown"
-            if "ModuleNotFoundError" in log_content or "ImportError" in log_content:
-                log_type = "python"
-            elif "docker" in log_content.lower() or "container" in log_content.lower():
-                log_type = "docker" 
-            elif "azure" in log_content.lower() or "resource group" in log_content.lower():
-                log_type = "azure"
                 
-            self.logger.info(f"Detected log type: {log_type}")
+            return {
+                "status": "success",
+                "error_type": error_type,
+                "analysis": analysis_result,
+                "source": "fallback_analysis"
+            }
             
-            # Use the analyzer agent
-            try:
-                # Try to use the actual analyzer
-                analysis_result = self.analyzer.analyze_log(log_content)
-                self.logger.info("Analyzer agent returned analysis")
-                
-                # Return the analysis result with metadata
-                return {
-                    "status": "success",
-                    "error_type": analysis_result.get("error_summary", "Unknown error").split(":")[0],
-                    "analysis": analysis_result,
-                    "source": "analyzer_agent"
+        except Exception as e:
+            self.logger.error(f"Error in analyze_log: {e}")
+            return {
+                "status": "error",
+                "error": str(e),
+                "analysis": {
+                    "error_summary": "Analysis failed",
+                    "root_cause": f"Internal error: {str(e)}",
+                    "severity": "Unknown",
+                    "severity_level": "UNKNOWN",
+                    "recommended_solution": "Please try again or check server logs",
+                    "prevention": "Report this issue to the development team"
                 }
-                
-            except Exception as e:
-                self.logger.error(f"Error using analyzer agent: {e}")
-                # Fall back to coordinator based routing
-                pass
-                
-        # Use coordinator-based routing if available
-        if hasattr(self, 'coordinator') and self.coordinator:
-            try:
-                coord_result = self.coordinator.analyze_log(log_content)
-                self.logger.info("Coordinator completed analysis")
-                return coord_result
-            except Exception as e:
-                self.logger.error(f"Error using coordinator: {e}")
-                # Fall back to fallback option
-        
-        # Fallback to a simple pattern-based analysis
-        self.logger.warning("Using fallback pattern-based analysis")
-        
-        # Check for common error patterns
-        error_type = "unknown"
-        root_cause = "Could not determine root cause"
-        recommended_solution = "Please review the log for more details"
-        
-        if "ModuleNotFoundError: No module named 'requests'" in log_content:
-            error_type = "python_import_error"
-            error_summary = "ModuleNotFoundError: No module named 'requests'"
-            root_cause = "The Python script is trying to import the 'requests' library, but it's not installed in the current environment"
-            recommended_solution = "Install the missing package using pip:\n\npip install requests"
-            prevention = "Use requirements.txt to document dependencies and virtual environments to isolate project dependencies"
-            severity = "Medium - Application cannot run without this dependency"
-            severity_level = "MEDIUM"
-            
-        elif "pull access denied" in log_content and "repository does not exist" in log_content:
-            error_type = "docker_auth_error"
-            error_summary = "Docker pull access denied: repository does not exist or requires authentication"
-            root_cause = "Docker is unable to pull the specified image because it either does not exist or you don't have permission to access it"
-            recommended_solution = "1. Verify the image name is correct\n2. Use 'docker login' to authenticate with the registry\n3. Check that you have access to the repository"
-            prevention = "Use a CI/CD system with proper credential management for automated deployments"
-            severity = "High - Deployment is blocked until resolved"
-            severity_level = "HIGH"
-            
-        elif "DeploymentFailed" in log_content and "Resource group" in log_content and "could not be found" in log_content:
-            error_type = "azure_resource_error"
-            error_summary = "Azure Deployment Failed: Resource group not found"
-            root_cause = "The specified Azure resource group does not exist in the current subscription"
-            recommended_solution = "1. Verify the resource group name\n2. Check that you're using the correct Azure subscription\n3. Create the resource group if needed using 'az group create'"
-            prevention = "Use infrastructure as code tools like ARM templates or Terraform to manage resource groups"
-            severity = "Medium - Deployment cannot proceed"
-            severity_level = "MEDIUM"
-            
-        else:
-            # Generic error case
-            error_type = "unknown_error"
-            error_summary = log_content[:100] + ("..." if len(log_content) > 100 else "")
-            root_cause = "Could not determine the specific cause of this error"
-            recommended_solution = "Review the complete log for more context and details"
-            prevention = "Implement comprehensive logging and monitoring"
-            severity = "Medium - Unknown impact"
-            severity_level = "MEDIUM"
-            
-        analysis_result = {
-            "error_summary": error_summary,
-            "root_cause": root_cause,
-            "severity": severity,
-            "severity_level": severity_level,
-            "recommended_solution": recommended_solution,
-            "prevention": prevention
-        }
-            
-        return {
-            "status": "success",
-            "error_type": error_type,
-            "analysis": analysis_result,
-            "source": "fallback_analysis"
-        }
-        
-    except Exception as e:
-        self.logger.error(f"Error in analyze_log: {e}")
-        return {
-            "status": "error",
-            "error": str(e),
-            "analysis": {
-                "error_summary": "Analysis failed",
-                "root_cause": f"Internal error: {str(e)}",
-                "severity": "Unknown",
-                "severity_level": "UNKNOWN",
-                "recommended_solution": "Please try again or check server logs",
-                "prevention": "Report this issue to the development team"
             }
-        }
 
-def parse_arguments():
-    """Parse command-line arguments."""
-    parser = argparse.ArgumentParser(description="Semantic DevOps Bot")
-    parser.add_argument("--log", "-l", help="Path to log file to analyze")
-    parser.add_argument("--log-text", "-t", help="Log text to analyze")
-    parser.add_argument("--config", "-c", help="Path to configuration file")
-    parser.add_argument("--github-issue", "-g", action="store_true", 
-                      help="Create GitHub issue with analysis results")
-    parser.add_argument("--verbose", "-v", action="store_true", 
-                      help="Enable verbose logging")
-    parser.add_argument("--create-issue", "-i", action="store_true", 
-                      help="Create GitHub issue with analysis results")
-    
-    # Add the missing arguments
-    parser.add_argument("--github-token", help="GitHub API token")
-    parser.add_argument("--repo-owner", help="GitHub repository owner")
-    parser.add_argument("--repo-name", help="GitHub repository name")
-    
-    return parser.parse_args()
+    def parse_arguments():
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser(description="Semantic DevOps Bot")
+        parser.add_argument("--log", "-l", help="Path to log file to analyze")
+        parser.add_argument("--log-text", "-t", help="Log text to analyze")
+        parser.add_argument("--config", "-c", help="Path to configuration file")
+        parser.add_argument("--github-issue", "-g", action="store_true", 
+                        help="Create GitHub issue with analysis results")
+        parser.add_argument("--verbose", "-v", action="store_true", 
+                        help="Enable verbose logging")
+        parser.add_argument("--create-issue", "-i", action="store_true", 
+                        help="Create GitHub issue with analysis results")
+        
+        # Add the missing arguments
+        parser.add_argument("--github-token", help="GitHub API token")
+        parser.add_argument("--repo-owner", help="GitHub repository owner")
+        parser.add_argument("--repo-name", help="GitHub repository name")
+        
+        return parser.parse_args()
 
 def main():
     """Main entry point for the application."""

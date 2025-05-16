@@ -1,0 +1,145 @@
+{
+  "status": "success",
+  "timestamp": "2025-05-15T22:58:53.605579",
+  "directory": "sample_logs",
+  "recursive": false,
+  "parallel_processing": true,
+  "total_files": 6,
+  "successful": 6,
+  "failed": 0,
+  "success_rate": 1.0,
+  "total_processing_time_seconds": 19.992713928222656,
+  "average_processing_time_seconds": 3.3321189880371094,
+  "error_types": {
+    "The error \"C2109: subscript requires array or pointer type\" indicates a problem in the code where an attempt is made to use the subscript operator ([]) on a variable that is not an array or pointer type.": 1,
+    "###\nThe error indicates that there is an insufficient quota available in your Azure subscription to provision the requested virtual machine resources.": 1,
+    "Python ModuleNotFoundError: Missing 'requests' Package": 1,
+    "": 1,
+    "###\nThe main issue is a failure to connect to the staging environment on port 443, which is typically used for HTTPS connections.": 1,
+    "###\nThe deployment to Azure App Service failed because the specified Azure Resource Group, `my-dev-rg`, could not be found.": 1
+  },
+  "severities": {
+    "Medium\nThis error prevents the code from compiling, which can halt development or deployment processes. However, it is usually straightforward to fix once the problematic line of code is identified.": 1,
+    "###\nMedium - This issue prevents the provisioning of new resources, which can halt development or deployment processes. However, it does not affect existing resources or services.": 1,
+    "Medium - Application cannot run without this dependency": 1,
+    "": 1,
+    "###  Medium\nThis issue is rated as Medium because it prevents deployment to the staging environment, which can hinder testing and development processes. However, it does not affect production systems directly.": 1,
+    "###  Medium\nThis issue prevents deployment to the Azure App Service, impacting the availability of the application. However, it is not critical as it can be resolved by correcting the configuration or creating the missing resource group.": 1
+  },
+  "results": [
+    {
+      "file_path": "sample_logs/log_1.log",
+      "file_name": "log_1.log",
+      "status": "success",
+      "timestamp": "2025-05-15T22:58:33.612901",
+      "file_size_bytes": 68,
+      "analysis": {
+        "error_summary": "The error \"C2109: subscript requires array or pointer type\" indicates a problem in the code where an attempt is made to use the subscript operator ([]) on a variable that is not an array or pointer type.",
+        "root_cause": "This error typically occurs in C or C++ programming when the code tries to access elements using the subscript operator on a variable that is not an array or a pointer. This can happen if a variable is mistakenly assumed to be an array or pointer, or if there is a typo or logical error in the code that leads to this incorrect usage.",
+        "severity": "Medium\nThis error prevents the code from compiling, which can halt development or deployment processes. However, it is usually straightforward to fix once the problematic line of code is identified.",
+        "recommended_solution": "1. **Identify the Line of Code**: Look at the line number in the full build log where the error occurs. This will help you pinpoint the exact location in the code.\n2. **Check Variable Types**: Ensure that the variable being subscripted is indeed an array or a pointer. If it is not, you need to correct the type or the logic.\n3. **Correct the Code**:\n- If the variable should be an array or pointer, declare it as such.\n- If the logic is incorrect, adjust the code to use the correct variable that is an array or pointer.\n4. **Recompile the Code**: After making the necessary changes, recompile the code to ensure the error is resolved.",
+        "prevention": "1. **Code Review**: Regularly conduct code reviews to catch type-related errors early in the development process.\n2. **Static Analysis Tools**: Use static analysis tools that can detect type mismatches and potential errors before compilation.\n3. **Type Safety Practices**: Adopt type safety practices, such as using typedefs or smart pointers, to reduce the likelihood of type-related errors.\n4. **Unit Testing**: Implement comprehensive unit tests that cover different scenarios, ensuring that variables are used correctly throughout the code.",
+        "severity_level": "MEDIUM"
+      },
+      "messages": [],
+      "severity": "Medium\nThis error prevents the code from compiling, which can halt development or deployment processes. However, it is usually straightforward to fix once the problematic line of code is identified.",
+      "error_type": "The error \"C2109: subscript requires array or pointer type\" indicates a problem in the code where an attempt is made to use the subscript operator ([]) on a variable that is not an array or pointer type.",
+      "processing_time_seconds": 9.918349027633667
+    },
+    {
+      "file_path": "sample_logs/log_3.log",
+      "file_name": "log_3.log",
+      "status": "success",
+      "timestamp": "2025-05-15T22:58:33.613014",
+      "file_size_bytes": 66,
+      "analysis": {
+        "error_summary": "###\nThe error indicates that there is an insufficient quota available in your Azure subscription to provision the requested virtual machine resources.",
+        "root_cause": "###\nAzure enforces quotas on the number of resources that can be provisioned to prevent overuse and ensure fair usage across all users. This error occurs when the requested resources exceed the current quota limits set for your Azure subscription. This could be due to a high number of existing resources or a request for a particularly large or numerous set of new resources.",
+        "severity": "###\nMedium - This issue prevents the provisioning of new resources, which can halt development or deployment processes. However, it does not affect existing resources or services.",
+        "recommended_solution": "###\n1. **Check Current Quota Usage:**\n- Navigate to the Azure portal.\n- Go to \"Subscriptions\" and select your subscription.\n- Under \"Settings,\" select \"Usage + quotas\" to view current usage and limits.\n2. **Request Quota Increase:**\n- If you are near or at your quota limit, you can request an increase.\n- In the \"Usage + quotas\" section, select the resource type you need more of and click \"Request increase.\"\n- Fill out the necessary information and submit the request.\n3. **Optimize Resource Usage:**\n- Review existing resources to identify any that can be deallocated or resized to free up quota.\n- Consider consolidating workloads onto fewer, larger VMs if possible.\n4. **Contact Azure Support:**\n- If the above steps do not resolve the issue, contact Azure support for assistance.",
+        "prevention": "###\n- **Regular Monitoring:** Regularly monitor your quota usage to anticipate when you might need an increase.\n- **Capacity Planning:** Implement capacity planning to predict future resource needs and request quota increases proactively.\n- **Resource Management:** Regularly audit and manage your resources to ensure they are being used efficiently and deallocate any that are no longer needed.\n- **Automation:** Use Azure Resource Manager templates or scripts to automate the provisioning and deallocation of resources, ensuring efficient use of quotas.",
+        "severity_level": "MEDIUM"
+      },
+      "messages": [],
+      "severity": "###\nMedium - This issue prevents the provisioning of new resources, which can halt development or deployment processes. However, it does not affect existing resources or services.",
+      "error_type": "###\nThe error indicates that there is an insufficient quota available in your Azure subscription to provision the requested virtual machine resources.",
+      "processing_time_seconds": 9.942003011703491
+    },
+    {
+      "file_path": "sample_logs/log_build_error.log",
+      "file_name": "log_build_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T22:58:43.555112",
+      "file_size_bytes": 141,
+      "analysis": {
+        "error_summary": "Python ModuleNotFoundError: Missing 'requests' Package",
+        "root_cause": "The Python script is trying to import the 'requests' library, but it's not installed in the current environment",
+        "severity": "Medium - Application cannot run without this dependency",
+        "severity_level": "MEDIUM",
+        "recommended_solution": "Install the missing package using pip:\n\npip install requests",
+        "prevention": "Use requirements.txt to document dependencies and virtual environments to isolate project dependencies"
+      },
+      "messages": [],
+      "severity": "Medium - Application cannot run without this dependency",
+      "error_type": "Python ModuleNotFoundError: Missing 'requests' Package",
+      "processing_time_seconds": 0.0011720657348632812
+    },
+    {
+      "file_path": "sample_logs/log_deployment_error.log",
+      "file_name": "log_deployment_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T22:58:33.613274",
+      "file_size_bytes": 106,
+      "analysis": {
+        "error_summary": "",
+        "root_cause": "",
+        "severity": "",
+        "recommended_solution": "",
+        "prevention": "",
+        "severity_level": "UNKNOWN"
+      },
+      "messages": [],
+      "severity": "",
+      "error_type": "",
+      "processing_time_seconds": 17.9718279838562
+    },
+    {
+      "file_path": "sample_logs/log_2.log",
+      "file_name": "log_2.log",
+      "status": "success",
+      "timestamp": "2025-05-15T22:58:33.613134",
+      "file_size_bytes": 70,
+      "analysis": {
+        "error_summary": "###\nThe main issue is a failure to connect to the staging environment on port 443, which is typically used for HTTPS connections.",
+        "root_cause": "###\nThe error indicates a connectivity issue between the Kubernetes deployment and the staging environment. This could be due to several reasons:\n- Network policies or firewall rules blocking outbound traffic on port 443.\n- Incorrect service configuration or endpoint URL.\n- TLS/SSL certificate issues, such as expired or misconfigured certificates.\n- DNS resolution problems preventing the Kubernetes cluster from resolving the staging environment's domain name.",
+        "severity": "###  Medium\nThis issue is rated as Medium because it prevents deployment to the staging environment, which can hinder testing and development processes. However, it does not affect production systems directly.",
+        "recommended_solution": "###\n1. **Check Network Policies and Firewall Rules:**\n- Verify that the Kubernetes network policies allow outbound traffic on port 443.\n- Ensure that any external firewalls or security groups are configured to permit traffic on port 443 to the staging environment.\n2. **Validate Service Configuration:**\n- Confirm that the service configuration in Kubernetes is correct, including the endpoint URL and port number.\n- Use `kubectl describe service <service-name>` to inspect the service details.\n3. **Inspect TLS/SSL Certificates:**\n- Check if the TLS/SSL certificates used by the staging environment are valid and correctly configured.\n- Use tools like `openssl` to verify the certificate chain and expiration dates.\n4. **DNS Resolution:**\n- Ensure that the domain name of the staging environment is correctly resolving to the intended IP address.\n- Use `kubectl exec` to run `nslookup` or `dig` from within a pod to test DNS resolution.\n5. **Logs and Monitoring:**\n- Review logs from the affected pods and services for additional error messages or clues.\n- Use monitoring tools to check for any network anomalies or disruptions.",
+        "prevention": "###\n- **Regular Audits:** Conduct regular audits of network policies and firewall rules to ensure they align with current deployment needs.\n- **Certificate Management:** Implement automated certificate management to handle renewals and updates seamlessly.\n- **Monitoring and Alerts:** Set up monitoring and alerting for network connectivity issues, including DNS resolution failures and SSL certificate expirations.\n- **Documentation:** Maintain up-to-date documentation of service configurations and network setups to facilitate quick troubleshooting.",
+        "severity_level": "MEDIUM"
+      },
+      "messages": [],
+      "severity": "###  Medium\nThis issue is rated as Medium because it prevents deployment to the staging environment, which can hinder testing and development processes. However, it does not affect production systems directly.",
+      "error_type": "###\nThe main issue is a failure to connect to the staging environment on port 443, which is typically used for HTTPS connections.",
+      "processing_time_seconds": 18.81647491455078
+    },
+    {
+      "file_path": "sample_logs/log_azure_error.log",
+      "file_name": "log_azure_error.log",
+      "status": "success",
+      "timestamp": "2025-05-15T22:58:43.531339",
+      "file_size_bytes": 80,
+      "analysis": {
+        "error_summary": "###\nThe deployment to Azure App Service failed because the specified Azure Resource Group, `my-dev-rg`, could not be found.",
+        "root_cause": "###\nThe error indicates that the deployment process attempted to use a resource group named `my-dev-rg`, but it does not exist in the Azure subscription. This could be due to a typo in the resource group name, the resource group being deleted, or the deployment being pointed to the wrong Azure subscription.",
+        "severity": "###  Medium\nThis issue prevents deployment to the Azure App Service, impacting the availability of the application. However, it is not critical as it can be resolved by correcting the configuration or creating the missing resource group.",
+        "recommended_solution": "###\n1. **Verify Resource Group Name:**\n- Log into the Azure Portal.\n- Navigate to \"Resource Groups\" and check if `my-dev-rg` exists.\n- Ensure there are no typos in the resource group name in your deployment configuration.\n2. **Check Azure Subscription:**\n- Confirm that you are using the correct Azure subscription where `my-dev-rg` is supposed to exist.\n- Use the Azure CLI to list resource groups in the current subscription:\n```bash\naz group list --output table\n```\n3. **Create Resource Group (if necessary):**\n- If the resource group does not exist, create it using the Azure CLI:\n```bash\naz group create --name my-dev-rg --location <your-location>\n```\n- Replace `<your-location>` with the desired Azure region.\n4. **Update Deployment Configuration:**\n- Ensure your deployment scripts or configuration files reference the correct resource group and subscription.",
+        "prevention": "###\n- **Use Infrastructure as Code (IaC):** Implement IaC tools like Azure Resource Manager (ARM) templates, Terraform, or Bicep to manage and deploy resources consistently.\n- **Automated Checks:** Integrate checks in your CI/CD pipeline to verify the existence of required resources before deployment.\n- **Documentation and Naming Conventions:** Maintain clear documentation of resource group names and enforce naming conventions to avoid typos.\n- **Subscription Management:** Regularly audit and manage Azure subscriptions to ensure resources are correctly allocated and accessible.",
+        "severity_level": "CRITICAL"
+      },
+      "messages": [],
+      "severity": "###  Medium\nThis issue prevents deployment to the Azure App Service, impacting the availability of the application. However, it is not critical as it can be resolved by correcting the configuration or creating the missing resource group.",
+      "error_type": "###\nThe deployment to Azure App Service failed because the specified Azure Resource Group, `my-dev-rg`, could not be found.",
+      "processing_time_seconds": 10.073210954666138
+    }
+  ]
+}

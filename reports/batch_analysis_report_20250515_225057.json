@@ -1,0 +1,95 @@
+{
+  "status": "success",
+  "timestamp": "2025-05-15T22:50:57.514864",
+  "directory": "sample_logs",
+  "recursive": false,
+  "parallel_processing": true,
+  "total_files": 6,
+  "successful": 0,
+  "failed": 6,
+  "success_rate": 0.0,
+  "total_processing_time_seconds": 23.75226378440857,
+  "average_processing_time_seconds": 3.9587106307347617,
+  "error_types": {},
+  "severities": {},
+  "results": [
+    {
+      "file_path": "sample_logs/log_2.log",
+      "file_name": "log_2.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:50:33.762900",
+      "file_size_bytes": 70,
+      "analysis": {
+        "error": "Analysis failed or returned None"
+      },
+      "messages": [],
+      "error_message": "'NoneType' object has no attribute 'get'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 111, in process_log_file\n    result[\"severity\"] = analysis.get(\"analysis\", {}).get(\"severity\", \"UNKNOWN\")\n                         ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    },
+    {
+      "file_path": "sample_logs/log_1.log",
+      "file_name": "log_1.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:50:33.762681",
+      "file_size_bytes": 68,
+      "analysis": {
+        "error": "Analysis failed or returned None"
+      },
+      "messages": [],
+      "error_message": "'NoneType' object has no attribute 'get'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 111, in process_log_file\n    result[\"severity\"] = analysis.get(\"analysis\", {}).get(\"severity\", \"UNKNOWN\")\n                         ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    },
+    {
+      "file_path": "sample_logs/log_deployment_error.log",
+      "file_name": "log_deployment_error.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:50:33.763038",
+      "file_size_bytes": 106,
+      "analysis": {
+        "error": "Analysis failed or returned None"
+      },
+      "messages": [],
+      "error_message": "'NoneType' object has no attribute 'get'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 111, in process_log_file\n    result[\"severity\"] = analysis.get(\"analysis\", {}).get(\"severity\", \"UNKNOWN\")\n                         ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    },
+    {
+      "file_path": "sample_logs/log_build_error.log",
+      "file_name": "log_build_error.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:50:45.940243",
+      "file_size_bytes": 141,
+      "analysis": {
+        "error": "Analysis failed or returned None"
+      },
+      "messages": [],
+      "error_message": "'NoneType' object has no attribute 'get'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 111, in process_log_file\n    result[\"severity\"] = analysis.get(\"analysis\", {}).get(\"severity\", \"UNKNOWN\")\n                         ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    },
+    {
+      "file_path": "sample_logs/log_azure_error.log",
+      "file_name": "log_azure_error.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:50:44.563214",
+      "file_size_bytes": 80,
+      "analysis": {
+        "error": "Analysis failed or returned None"
+      },
+      "messages": [],
+      "error_message": "'NoneType' object has no attribute 'get'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 111, in process_log_file\n    result[\"severity\"] = analysis.get(\"analysis\", {}).get(\"severity\", \"UNKNOWN\")\n                         ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    },
+    {
+      "file_path": "sample_logs/log_3.log",
+      "file_name": "log_3.log",
+      "status": "error",
+      "timestamp": "2025-05-15T22:50:33.762822",
+      "file_size_bytes": 66,
+      "analysis": {
+        "error": "Analysis failed or returned None"
+      },
+      "messages": [],
+      "error_message": "'NoneType' object has no attribute 'get'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/mohdsarfarazfaiyaz/semantic-devops-bot/batch_log_analyzer.py\", line 111, in process_log_file\n    result[\"severity\"] = analysis.get(\"analysis\", {}).get(\"severity\", \"UNKNOWN\")\n                         ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    }
+  ]
+}
