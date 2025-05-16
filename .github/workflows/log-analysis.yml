@@ -62,22 +62,22 @@ jobs:
         echo "GITHUB_REPO_NAME: $GITHUB_REPO_NAME"
         [ -f "config.json" ] && echo "✅ config.json found" || echo "⚠️ config.json not found"
         
+        
     - name: 🧠 Run Batch Log Analyzer
       run: |
+        cd semantic-devops-bot
         LOG_DIR="${{ github.event.inputs.log_directory || 'sample_logs' }}"
         CREATE_ISSUES="${{ github.event.inputs.create_issues || 'true' }}"
-        
-        # Define arguments without escaping quotes
+      
         ARGS=( --dir "$LOG_DIR" --parallel )
         if [ "$CREATE_ISSUES" = "true" ]; then
           ARGS+=( --create-issues )
         fi
-        
+      
         echo "Running with args: ${ARGS[*]}"
-        # Create reports directory before running the script to ensure it exists
         mkdir -p reports
         python batch_log_analyzer.py "${ARGS[@]}"
-        
+      
     - name: 📊 Generate analysis summary
       run: |
         {
