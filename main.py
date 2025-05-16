@@ -299,7 +299,6 @@ class DevOpsBot:
                 "recommended_solution": "Check logs for errors",
                 "prevention": "Ensure all specialist agents are registered"
             }
-=======
     """
 Enhanced analyze_log method for DevOpsBot class - 
 Replace the existing method in main.py with this implementation.
